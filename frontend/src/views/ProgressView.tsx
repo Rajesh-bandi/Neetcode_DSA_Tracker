@@ -217,18 +217,24 @@ export function ProgressView({ tracker, onOpenProblem }: Props) {
       <section className="panel">
         <div className="panel__head">
           <h2 className="h2">Week by week</h2>
-          <span className="panel__aside">started against mastered</span>
+          <span className="panel__aside">started · mastered</span>
         </div>
         <div className="bars">
           {perWeek.map((w) => (
             <div className="bar" key={w.week}>
               <span className="bar__label">wk {w.week}</span>
-              <span className="bar__track" title={`${w.topics.join(' + ')} — ${w.started}/${w.count} solved, ${w.mastered} mastered`}>
+              <span
+                className="bar__track"
+                role="img"
+                aria-label={`${w.topics.join(' and ')}: ${w.started} of ${w.count} started, ${w.mastered} mastered`}
+                title={`${w.topics.join(' + ')} — ${w.started}/${w.count} started, ${w.mastered} mastered`}
+              >
                 <span className="bar__started" style={{ width: `${pct(w.started, w.count)}%` }} />
                 <span className="bar__mastered" style={{ width: `${pct(w.mastered, w.count)}%` }} />
               </span>
-              <span className="bar__pct">
-                {w.mastered}/{w.count}
+              <span className="bar__counts">
+                <b>{w.started}/{w.count}</b>
+                <small>{w.mastered} mastered</small>
               </span>
             </div>
           ))}
@@ -255,7 +261,10 @@ export function ProgressView({ tracker, onOpenProblem }: Props) {
             {timeline.map((d) => (
               <div className="tl" key={d.date}>
                 <span className="tl__n">{d.bits.length || ''}</span>
-                <span className="tl__stack">
+                <span
+                  className="tl__stack"
+                  style={{ height: d.bits.length ? `${Math.max(10, (d.bits.length / busiest) * 88)}px` : '0px' }}
+                >
                   {d.bits.map((b, i) => (
                     <span
                       key={`${b.title}-${i}`}
