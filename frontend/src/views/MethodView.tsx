@@ -1,5 +1,5 @@
 import { CREDIT, DAILY_ROUTINE, HOW_TO_FILL, LOOP, PLAN_NOTE, RULE, SUMMARY, WEEK_PLAN } from '../data/method';
-import { addDays, shortDate, type Tracker } from '../lib/state';
+import { shortDate, type Tracker } from '../lib/state';
 
 type Props = { tracker: Tracker };
 
@@ -77,7 +77,7 @@ export function MethodView({ tracker }: Props) {
         </div>
         <div className="plan">
           {WEEK_PLAN.map((w) => {
-            const start = addDays(planStart, (w.week - 1) * 7);
+            const range = tracker.schedule.weekRange(w.week);
             return (
               <div className="planrow" key={w.week} data-now={planPosition?.week === w.week}>
                 <span className="planrow__no">{w.week}</span>
@@ -85,7 +85,7 @@ export function MethodView({ tracker }: Props) {
                   {w.label}
                   <br />
                   <span style={{ fontSize: '0.78rem', color: 'var(--fg-faint)' }}>
-                    {shortDate(start)} – {shortDate(addDays(start, 6))}
+                    {shortDate(range.start)} – {shortDate(range.end)}
                   </span>
                 </span>
                 <span className="planrow__count">{w.count} problems</span>

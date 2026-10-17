@@ -14,7 +14,18 @@ import { LeaderboardView } from '../src/views/LeaderboardView';
 import { AuthView } from '../src/views/AuthView';
 import { DIFFICULTY_TOTALS, PROBLEMS, TOTAL, WEEKS } from '../src/data/problems';
 import { RULE } from '../src/data/method';
-import { addDays, derive, daysBetween, mondayOf, todayISO, useTracker, type Entry } from '../src/lib/state';
+import {
+  addDays,
+  buildSchedule,
+  derive,
+  daysBetween,
+  emptyStore,
+  mondayOf,
+  todayISO,
+  upgradeStore,
+  useTracker,
+  type Entry,
+} from '../src/lib/state';
 import { consistency, heatmap, level, shiftDay, streaks } from '../src/lib/streak';
 import { mergeProgress } from '../src/lib/sync';
 import { AuthProvider } from '../src/lib/auth';
@@ -80,6 +91,49 @@ const mastered = derive(week1, { solvedOn: addDays(today, -31), marks: { day3: '
 check('day 30 done reads mastered', mastered.status === 'mastered');
 check('mastered fills the whole square', mastered.furthest === 3);
 check('plan start is a Monday', new Date(`${mondayOf()}T00:00:00`).getDay() === 1);
+
+/* ------------------------------------------------------------- schedule */
+console.log('\nthe plan follows the reader, not the calendar');
+const freshPlan = buildSchedule(today, WEEKS.length, {}, today);
+check('a plan opened today puts day 1 on today', freshPlan.dateFor(1, 1) === today, freshPlan.dateFor(1, 1));
+check('week 1 opens on today', freshPlan.weekRange(1).start === today, freshPlan.weekRange(1).start);
+check('day 2 is tomorrow', freshPlan.dateFor(1, 2) === addDays(today, 1), freshPlan.dateFor(1, 2));
+check(
+  'a fresh plan sits on day 1',
+  freshPlan.todaySlot?.week === 1 && freshPlan.todaySlot.day === 1,
+  JSON.stringify(freshPlan.todaySlot),
+);
+
+const oneMissed = buildSchedule(addDays(today, -2), WEEKS.length, { [addDays(today, -2)]: 1 }, today);
+check('a studied start day keeps its date', oneMissed.dateFor(1, 1) === addDays(today, -2), oneMissed.dateFor(1, 1));
+check('a missed day hands its work to today', oneMissed.dateFor(1, 2) === today, oneMissed.dateFor(1, 2));
+check('the day after that is tomorrow', oneMissed.dateFor(1, 3) === addDays(today, 1), oneMissed.dateFor(1, 3));
+check('today is day 2 after one missed day', oneMissed.todaySlot?.day === 2, JSON.stringify(oneMissed.todaySlot));
+
+const twoMissed = buildSchedule(addDays(today, -3), WEEKS.length, { [addDays(today, -3)]: 1 }, today);
+check('two missed days still land today', twoMissed.dateFor(1, 2) === today, twoMissed.dateFor(1, 2));
+check('nothing is scheduled in the past', twoMissed.dateFor(1, 1) >= addDays(today, -3) && twoMissed.dateFor(1, 2) >= today);
+check('later weeks slide with it', twoMissed.weekRange(2).start === addDays(twoMissed.dateFor(1, 7), 1), twoMissed.weekRange(2).start);
+
+check('a plan nobody has started anchors to today', emptyStore().planStart === today, emptyStore().planStart);
+check(
+  'a stale empty plan re-anchors to today',
+  upgradeStore({ version: 2, planStart: addDays(today, -5), entries: {}, activity: {} }).planStart === today,
+  upgradeStore({ version: 2, planStart: addDays(today, -5), entries: {}, activity: {} }).planStart,
+);
+check(
+  'a plan with work behind it keeps its start',
+  upgradeStore({
+    version: 2,
+    planStart: addDays(today, -5),
+    entries: { [PROBLEMS[0].id]: { solvedOn: addDays(today, -5), marks: {} } },
+    activity: { [addDays(today, -5)]: 1 },
+  }).planStart === addDays(today, -5),
+);
+check(
+  'a start the reader picked for later is kept',
+  upgradeStore({ version: 2, planStart: addDays(today, 3), entries: {}, activity: {} }).planStart === addDays(today, 3),
+);
 
 /* ----------------------------------------------------------------- streak */
 console.log('\nstreaks and heatmap');
@@ -190,6 +244,7 @@ const trackerSimpleHtml = renderToString(createElement(TrackerView, {
     resetAll: () => {},
     setPlanStart: () => {},
     replaceStore: () => {},
+    schedule: buildSchedule(mondayOf(), WEEKS.length, {}, today),
     planPosition: { week: 1, day: 1 },
   },
   openWeeks: new Set([1]),

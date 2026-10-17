@@ -74,7 +74,11 @@ function limiter({ windowMs, max }) {
 
 export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:3000', isProduction = false }) {
   const app = express();
-  const secureCookies = appOrigin.startsWith('https://');
+  // Any https origin in the list means this deployment is served over https,
+  // which is what allows a cross-site (SameSite=None) session cookie.
+  const secureCookies = String(appOrigin)
+    .split(',')
+    .some((o) => o.trim().startsWith('https://'));
   const allowedOrigins = new Set(
     String(appOrigin)
       .split(',')
@@ -97,21 +101,61 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
     next();
   });
 
-  // Cookie auth means mutations need a same-origin check as well as SameSite=Lax.
+  /** The caller's origin when it is one we serve: an allowed app origin, or ourselves. */
+  function callerOrigin(req) {
+    const raw = req.get('origin');
+    if (!raw) return null;
+    const clean = raw.replace(/\/$/, '');
+    try {
+      if (allowedOrigins.has(clean) || new URL(clean).host === req.get('host')) return clean;
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  /**
+   * The frontend may live on another site (Vercel) than the API (Render), so
+   * answer CORS for the allowed origins and let the preflight through before
+   * the mutation check runs.
+   */
+  app.use('/api', (req, res, next) => {
+    const origin = callerOrigin(req);
+    if (origin) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+      res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+      res.setHeader('Vary', 'Origin');
+    }
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
+    return next();
+  });
+
+  // Cookie auth means mutations need an origin check as well as SameSite=*.
   app.use('/api', (req, res, next) => {
     if (req.method === 'GET' || req.method === 'HEAD') return next();
-    const origin = req.get('origin');
-    if (!origin) return next(); // curl / tests
-    const clean = origin.replace(/\/$/, '');
-    let sameHost = false;
-    try {
-      sameHost = new URL(clean).host === req.get('host');
-    } catch {
-      sameHost = false;
-    }
-    if (allowedOrigins.has(clean) || sameHost) return next();
+    if (!req.get('origin')) return next(); // curl / tests
+    if (callerOrigin(req)) return next();
     return res.status(403).json({ error: 'This origin is not allowed to change data.' });
   });
+
+  /**
+   * A cookie is only sent cross-site as SameSite=None, and browsers only accept
+   * that over https. Same-origin deployments keep the stricter Lax.
+   */
+  function cookieShape(req) {
+    const origin = req.get('origin');
+    let crossSite = false;
+    try {
+      crossSite = Boolean(origin) && new URL(origin.replace(/\/$/, '')).host !== req.get('host');
+    } catch {
+      crossSite = false;
+    }
+    // Behind a TLS-terminating proxy the scheme is in the forwarded header.
+    const secure = secureCookies || req.secure || req.get('x-forwarded-proto') === 'https';
+    return { secure, crossSite };
+  }
 
   app.use('/api', express.json({ limit: '512kb' }));
 
@@ -146,7 +190,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
     return streaks(days, today);
   }
 
-  function issueSession(res, user) {
+  function issueSession(req, res, user) {
     const { token, jti, expiresAt } = signToken(user.id, secret);
     db.prepare('INSERT INTO sessions (jti, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)').run(
       jti,
@@ -156,7 +200,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
     );
     // Cheap housekeeping: dropped cookies and expired rows have no value.
     db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(Date.now());
-    res.setHeader('Set-Cookie', sessionCookie(token, { secure: secureCookies }));
+    res.setHeader('Set-Cookie', sessionCookie(token, cookieShape(req)));
   }
 
   /* ------------------------------------------------------------------ auth -- */
@@ -255,7 +299,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
 
     db.prepare('UPDATE users SET verified = 1 WHERE id = ?').run(user.id);
     db.prepare('DELETE FROM otps WHERE email = ?').run(email);
-    issueSession(res, user);
+    issueSession(req, res, user);
     return res.json({ user: publicUser({ ...user, verified: 1 }), streak: streakFor(user.id, serverDay()) });
   });
 
@@ -322,14 +366,14 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
       return res.status(403).json({ error: 'Verify your email before signing in.', code: 'unverified', email });
     }
 
-    issueSession(res, user);
+    issueSession(req, res, user);
     return res.json({ user: publicUser(user), streak: streakFor(user.id, serverDay()) });
   });
 
   app.post('/api/auth/logout', (req, res) => {
     const claim = verifyToken(parseCookies(req.get('cookie'))[SESSION_COOKIE], secret);
     if (claim) db.prepare('DELETE FROM sessions WHERE jti = ?').run(claim.jti);
-    res.setHeader('Set-Cookie', clearedSessionCookie());
+    res.setHeader('Set-Cookie', clearedSessionCookie(cookieShape(req)));
     return res.json({ ok: true });
   });
 
@@ -342,7 +386,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
   // Signs out every session for the account, not just this browser.
   app.post('/api/auth/sign-out-everywhere', requireAuth, (req, res) => {
     const removed = db.prepare('DELETE FROM sessions WHERE user_id = ?').run(req.user.id);
-    res.setHeader('Set-Cookie', clearedSessionCookie());
+    res.setHeader('Set-Cookie', clearedSessionCookie(cookieShape(req)));
     return res.json({ ok: true, signedOut: Number(removed.changes ?? 0) });
   });
 

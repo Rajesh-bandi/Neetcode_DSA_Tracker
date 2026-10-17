@@ -38,9 +38,16 @@ export function HomeView({ tracker, sync, onOpenDue, onOpenTracker, onOpenWeek, 
   const { today, activeDays, streak, derived, solvedCount, masteredCount, dueNow, planPosition } = tracker;
   const board = useLeaderboard(Boolean(user), today);
 
-  const fed = activeDays[today] ?? 0;
+  // Problems logged today — the tally counts re-solve marks too, so it would
+  // keep the pet fed after a solve is unchecked.
+  const fed = useMemo(() => derived.filter((d) => d.solvedOn === today).length, [derived, today]);
+  // Mood reads today's work first: two problems in and he is purring, one and
+  // he is content, none and he drops back to whatever the run deserves. The
+  // streak only ever shades the idle states — the board, not the pet, ranks
+  // people by streak.
   const mood: Mood = useMemo(() => {
-    if (fed > 0) return streak.current >= 3 ? 'radiant' : 'content';
+    if (fed >= 2) return 'radiant';
+    if (fed === 1) return streak.current >= 3 ? 'radiant' : 'content';
     if (streak.current > 0) return 'waiting';
     if (streak.longest > 0) return 'droopy';
     return 'asleep';
@@ -112,8 +119,8 @@ export function HomeView({ tracker, sync, onOpenDue, onOpenTracker, onOpenWeek, 
               <div className="feed" aria-label="Today's feeding">
                 <span className="label">today</span>
                 <span className="feed__dots" aria-hidden="true">
-                  {[0, 1, 2].map((i) => (
-                    <i key={i} data-on={i < Math.min(fed, 3)} />
+                  {Array.from({ length: Math.min(fed, 3) }, (_, i) => (
+                    <i key={i} data-on />
                   ))}
                 </span>
                 <span className="feed__n">{fed === 0 ? '0 problems' : `${fed} problem${fed === 1 ? '' : 's'}`}</span>

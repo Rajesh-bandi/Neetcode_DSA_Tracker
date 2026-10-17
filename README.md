@@ -30,6 +30,41 @@ npm run build     # builds frontend/dist
 npm start         # serves the app and the API from :8787
 ```
 
+## Deploying the two halves separately
+
+The frontend and the API can live on different hosts — the app on Vercel and the API on Render, for
+instance — with the session cookie travelling cross-site.
+
+**API host** (Render, or anything that runs Node 22.5+ — the backend uses Node's built-in SQLite):
+
+```
+Root directory   backend
+Build command    npm install
+Start command    npm start
+```
+
+Set these environment variables:
+
+| Variable | Value |
+| --- | --- |
+| `APP_ORIGIN` | the app's origin, e.g. `https://your-app.vercel.app` — comma-separate several |
+| `SESSION_SECRET` | a long random string; keep it stable or every deploy signs users out |
+| `NODE_ENV` | `production` |
+| `SMTP_*` | as in `backend/.env.example`, otherwise codes print to the deploy log |
+
+Only origins listed in `APP_ORIGIN` may change data, and they are the origins the API answers CORS
+for. Because that origin is `https`, the session cookie is sent as `SameSite=None; Secure`, which is
+what a cross-site frontend needs.
+
+**App host** (Vercel):
+
+| Variable | Value |
+| --- | --- |
+| `VITE_API_BASE_URL` | the API's origin, e.g. `https://your-service.onrender.com` |
+
+Vite inlines `VITE_*` at build time, so set it and then redeploy. With the variable unset the app
+calls `/api` on its own origin, which is what the dev proxy and the single-host run use.
+
 ## Accounts
 
 Email + password, confirmed with a six-digit code.

@@ -250,6 +250,7 @@ export function ProgressView({ tracker, onOpenProblem }: Props) {
             re-solves appear here on the day they are due.
           </p>
         ) : (
+          <>
           <div className="timeline">
             {timeline.map((d) => (
               <div className="tl" key={d.date}>
@@ -264,12 +265,16 @@ export function ProgressView({ tracker, onOpenProblem }: Props) {
                     />
                   ))}
                 </span>
-                <span className="tl__day" data-today={d.date === today}>
-                  {d.date === today ? 'today' : `${d.date.slice(8)}/${d.date.slice(5, 7)}`}
+                <span className="tl__day" data-today={d.date === today} title={longDate(d.date)}>
+                  {Number(d.date.slice(8))}
                 </span>
               </div>
             ))}
           </div>
+          <p className="label">
+            {shortDate(today)} – {shortDate(timeline[timeline.length - 1].date)} · today in orange
+          </p>
+          </>
         )}
         <div className="legend">
           {STAGES.map((s) => (

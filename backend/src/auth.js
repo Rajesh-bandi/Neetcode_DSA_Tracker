@@ -104,20 +104,31 @@ export function parseCookies(header) {
   return out;
 }
 
-export function sessionCookie(token, { secure = false, maxAgeDays = TOKEN_TTL_DAYS } = {}) {
+/**
+ * A frontend on another site (Vercel talking to Render) sends the session
+ * cookie cross-site, which browsers only accept as `SameSite=None; Secure`.
+ * Same-site deployments keep Lax, which is the stricter default.
+ */
+function sameSiteFor({ crossSite, secure }) {
+  return crossSite && secure ? 'None' : 'Lax';
+}
+
+export function sessionCookie(token, { secure = false, crossSite = false, maxAgeDays = TOKEN_TTL_DAYS } = {}) {
   const bits = [
     `${SESSION_COOKIE}=${encodeURIComponent(token)}`,
     'Path=/',
     'HttpOnly',
-    'SameSite=Lax',
+    `SameSite=${sameSiteFor({ crossSite, secure })}`,
     `Max-Age=${maxAgeDays * 86_400}`,
   ];
   if (secure) bits.push('Secure');
   return bits.join('; ');
 }
 
-export function clearedSessionCookie() {
-  return `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
+export function clearedSessionCookie({ secure = false, crossSite = false } = {}) {
+  const bits = [`${SESSION_COOKIE}=`, 'Path=/', 'HttpOnly', `SameSite=${sameSiteFor({ crossSite, secure })}`, 'Max-Age=0'];
+  if (secure) bits.push('Secure');
+  return bits.join('; ');
 }
 
 export function newId() {

@@ -154,12 +154,80 @@ export function derive(problem: Problem, entry: Entry | null, today: string): De
 /* ---------------------------------------------------------------- store -- */
 
 export function emptyStore(): Store {
-  return { version: 2, planStart: mondayOf(), entries: {}, activity: {} };
+  // A new plan starts the day you open it, not the Monday of that week: day 1
+  // has to be today or the first days read as already missed.
+  return { version: 2, planStart: todayISO(), entries: {}, activity: {} };
+}
+
+export type PlanSlot = { week: number; day: number; date: string };
+
+export type PlanSchedule = {
+  /** Suggested date for a week/day slot, after the plan has slid forward. */
+  dateFor: (week: number, day: number) => string;
+  weekRange: (week: number) => { start: string; end: string };
+  /** The slot today falls on. Null before the plan starts or after it ends. */
+  todaySlot: { week: number; day: number } | null;
+};
+
+/**
+ * Study-day dates. Each week has seven day slots; a calendar day that comes and
+ * goes with nothing logged hands its work to the next study day instead of
+ * letting the plan fall behind, so today's slot is always today's work.
+ */
+export function buildSchedule(
+  planStart: string,
+  weeks: number,
+  activeDays: Record<string, number>,
+  today: string,
+): PlanSchedule {
+  const studied = (day: string) => (activeDays[day] ?? 0) > 0;
+  const slots: PlanSlot[] = [];
+  let cursor = planStart;
+
+  for (let week = 1; week <= weeks; week += 1) {
+    for (let day = 1; day <= 7; day += 1) {
+      // Days before today with no work recorded were missed; skip them so the
+      // rest of the plan moves up rather than going overdue.
+      while (cursor < today && !studied(cursor)) cursor = addDays(cursor, 1);
+      slots.push({ week, day, date: cursor });
+      cursor = addDays(cursor, 1);
+    }
+  }
+
+  const dates = new Map(slots.map((s) => [`${s.week}-${s.day}`, s.date]));
+  const straightThrough = (week: number, day: number) => addDays(planStart, (week - 1) * 7 + (day - 1));
+  const todays = slots.find((s) => s.date === today) ?? null;
+
+  return {
+    dateFor: (week, day) => dates.get(`${week}-${day}`) ?? straightThrough(week, day),
+    weekRange: (week) => ({
+      start: dates.get(`${week}-1`) ?? straightThrough(week, 1),
+      end: dates.get(`${week}-7`) ?? straightThrough(week, 7),
+    }),
+    todaySlot: todays ? { week: todays.week, day: todays.day } : null,
+  };
 }
 
 /** Adds the day's action to the tally the streak is built from. */
 export function bumpActivity(activity: Record<string, number>, day: string): Record<string, number> {
   return { ...activity, [day]: (activity[day] ?? 0) + 1 };
+}
+
+/**
+ * Removes an entry and takes back the action its solve added, so unchecking a
+ * problem also drops the day's tally. Without this the streak, heatmap and pet
+ * stay fed by work that is no longer on the board.
+ */
+export function dropEntry(prev: Store, id: string): Store {
+  const entry = prev.entries[id];
+  if (!entry) return prev;
+  const entries = { ...prev.entries };
+  delete entries[id];
+  const activity = { ...prev.activity };
+  const left = (activity[entry.solvedOn] ?? 0) - 1;
+  if (left > 0) activity[entry.solvedOn] = left;
+  else delete activity[entry.solvedOn];
+  return { ...prev, entries, activity };
 }
 
 /** Accepts stores written by older versions, so nothing is lost on upgrade. */
@@ -168,12 +236,16 @@ export function upgradeStore(parsed: unknown): Store {
   if (!parsed || typeof parsed !== 'object') return base;
   const raw = parsed as Partial<Store> & { entries?: unknown };
   if (typeof raw.entries !== 'object' || raw.entries === null) return base;
-  return {
-    version: 2,
-    planStart: typeof raw.planStart === 'string' ? raw.planStart : base.planStart,
-    entries: raw.entries as Record<string, Entry>,
-    activity: typeof raw.activity === 'object' && raw.activity !== null ? (raw.activity as Record<string, number>) : {},
-  };
+  const entries = raw.entries as Record<string, Entry>;
+  const activity =
+    typeof raw.activity === 'object' && raw.activity !== null ? (raw.activity as Record<string, number>) : {};
+  const stored = typeof raw.planStart === 'string' ? raw.planStart : null;
+  // Nothing logged yet means the plan has not really started: anchor it to today
+  // so a fresh reader sees day 1 today. A start the reader picked for the future
+  // is kept, and once work exists the start is frozen.
+  const started = Object.keys(entries).length > 0 || Object.keys(activity).length > 0;
+  const planStart = started || !stored || stored >= base.planStart ? (stored ?? base.planStart) : base.planStart;
+  return { version: 2, planStart, entries, activity };
 }
 
 function load(): Store {
@@ -205,6 +277,8 @@ export type Tracker = {
   setPlanStart: (iso: string) => void;
   /** Used by the account sync to adopt a merged store. */
   replaceStore: (next: Store) => void;
+  /** Day-slot dates for the whole plan, slid forward over missed days. */
+  schedule: PlanSchedule;
   /** Which week/day of the plan today falls on, 1-indexed. */
   planPosition: { week: number; day: number } | null;
 };
@@ -223,14 +297,9 @@ export function useTracker(): Tracker {
 
   const toggleSolved = useCallback((id: string) => {
     setStore((prev) => {
+      if (prev.entries[id]) return dropEntry(prev, id);
       const day = todayISO();
-      const entries = { ...prev.entries };
-      if (entries[id]) {
-        // Unsolving keeps the day on record: the work happened either way.
-        delete entries[id];
-        return { ...prev, entries };
-      }
-      entries[id] = { solvedOn: day, marks: {} };
+      const entries = { ...prev.entries, [id]: { solvedOn: day, marks: {} } };
       return { ...prev, entries, activity: bumpActivity(prev.activity, day) };
     });
   }, []);
@@ -262,15 +331,11 @@ export function useTracker(): Tracker {
   }, []);
 
   const resetProblem = useCallback((id: string) => {
-    setStore((prev) => {
-      const entries = { ...prev.entries };
-      delete entries[id];
-      return { ...prev, entries };
-    });
+    setStore((prev) => dropEntry(prev, id));
   }, []);
 
   const resetAll = useCallback(() => {
-    setStore((prev) => ({ ...prev, entries: {} }));
+    setStore((prev) => ({ ...prev, entries: {}, activity: {} }));
   }, []);
 
   const setPlanStart = useCallback((planStart: string) => {
@@ -297,14 +362,6 @@ export function useTracker(): Tracker {
   );
   const redo = useMemo(() => derived.filter((d) => d.status === 'redo'), [derived]);
 
-  const planPosition = useMemo(() => {
-    const offset = daysBetween(store.planStart, today);
-    if (offset < 0) return null;
-    const week = Math.floor(offset / 7) + 1;
-    if (week > WEEKS.length) return null;
-    return { week, day: (offset % 7) + 1 };
-  }, [store.planStart, today]);
-
   // Days the app recorded, plus days implied by a solve date so a store written
   // before activity tracking still produces a streak.
   const activeDays = useMemo(() => {
@@ -314,6 +371,13 @@ export function useTracker(): Tracker {
     }
     return days;
   }, [store.activity, store.entries]);
+
+  const schedule = useMemo(
+    () => buildSchedule(store.planStart, WEEKS.length, activeDays, today),
+    [store.planStart, activeDays, today],
+  );
+
+  const planPosition = schedule.todaySlot;
 
   const streak = useMemo(() => streaks(Object.keys(activeDays), today), [activeDays, today]);
 
@@ -335,6 +399,7 @@ export function useTracker(): Tracker {
     resetAll,
     setPlanStart,
     replaceStore,
+    schedule,
     planPosition,
   };
 }

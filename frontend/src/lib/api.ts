@@ -52,11 +52,20 @@ export class ApiFailure extends Error {
   }
 }
 
+/**
+ * Where the API lives. Empty means same origin, which is what the dev proxy and
+ * a single-host deploy use. When the frontend is hosted apart from the API
+ * (Vercel talking to Render) set VITE_API_BASE_URL to the API's origin and the
+ * session cookie travels cross-site instead.
+ */
+const env = import.meta.env as { VITE_API_BASE_URL?: string } | undefined;
+const API_BASE = (env?.VITE_API_BASE_URL ?? '').replace(/\/+$/, '');
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(path, {
-      credentials: 'same-origin',
+    response = await fetch(`${API_BASE}${path}`, {
+      credentials: API_BASE ? 'include' : 'same-origin',
       headers: init.body ? { 'content-type': 'application/json' } : undefined,
       ...init,
     });

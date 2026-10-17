@@ -1,4 +1,4 @@
-import { addDays, shortDate, type Derived, type Tracker } from '../lib/state';
+import { shortDate, type Derived, type Tracker } from '../lib/state';
 import type { WeekMeta } from '../data/problems';
 import { ProblemRow } from './ProblemRow';
 
@@ -21,8 +21,7 @@ export function WeekSection({ meta, items, shown, tracker, open, onToggle, curre
   const due = items.filter((i) => i.status === 'due').length;
   const allDone = solved === items.length;
 
-  const weekStart = addDays(tracker.store.planStart, (meta.week - 1) * 7);
-  const weekEnd = addDays(weekStart, 6);
+  const { start: weekStart, end: weekEnd } = tracker.schedule.weekRange(meta.week);
 
   const rows = shown ?? items;
   const days = [...new Set(rows.map((i) => i.problem.day))].sort((a, b) => a - b);
@@ -70,7 +69,7 @@ export function WeekSection({ meta, items, shown, tracker, open, onToggle, curre
         <div className="week__body" id={`week-${meta.week}-body`}>
           {days.map((day) => {
             const dayItems = rows.filter((i) => i.problem.day === day);
-            const date = addDays(weekStart, day - 1);
+            const date = tracker.schedule.dateFor(meta.week, day);
             return (
               <div className="daygroup" key={day}>
                 <div className="daygroup__head">

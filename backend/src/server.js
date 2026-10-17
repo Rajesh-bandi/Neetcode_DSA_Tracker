@@ -17,7 +17,10 @@ if (existsSync(envFile)) {
   }
 }
 
-const port = Number(process.env.PORT ?? 8787);
+// PORT=0 means "any free port" to Node, which breaks the frontend proxy that
+// expects 8787; treat a non-positive or unparsable value as unset.
+const configuredPort = Number(process.env.PORT);
+const port = Number.isInteger(configuredPort) && configuredPort > 0 ? configuredPort : 8787;
 const appOrigin = process.env.APP_ORIGIN ?? 'http://localhost:3000';
 
 /** A stable secret keeps sessions alive across restarts; the file is gitignored. */

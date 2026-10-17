@@ -29,11 +29,14 @@ function Shell() {
   const [openWeeks, setOpenWeeks] = useState<Set<number>>(() => new Set([tracker.planPosition?.week ?? 1]));
   const [flashId, setFlashId] = useState<string | null>(null);
   const [target, setTarget] = useState<{ id: string; nonce: number } | null>(null);
-  const [dueRequest, setDueRequest] = useState(0);
+  const [trackerIntent, setTrackerIntent] = useState<{ filter: 'due' | 'all'; nonce: number } | null>(null);
   const flashTimer = useRef<number | undefined>(undefined);
 
   const go = useCallback((next: View) => {
     setViewState(next);
+    // A filter left over from an earlier "open due" click should not follow you
+    // into the next visit to the tracker.
+    setTrackerIntent(null);
     if (window.location.hash !== `#/${next}`) window.location.hash = `#/${next}`;
   }, []);
 
@@ -85,9 +88,16 @@ function Shell() {
 
   const openDue = useCallback(() => {
     go('tracker');
-    setOpenWeeks(new Set(tracker.dueNow.map((d) => d.problem.week)));
-    setDueRequest((n) => n + 1);
-  }, [go, tracker.dueNow]);
+    if (tracker.dueNow.length > 0) {
+      setOpenWeeks(new Set(tracker.dueNow.map((d) => d.problem.week)));
+      setTrackerIntent({ filter: 'due', nonce: Date.now() });
+      return;
+    }
+    // Nothing is due yet, so "today's queue" is the current week's problems —
+    // filtering to an empty due list would leave the tracker looking broken.
+    setOpenWeeks((prev) => new Set(prev).add(tracker.planPosition?.week ?? 1));
+    setTrackerIntent({ filter: 'all', nonce: Date.now() });
+  }, [go, tracker.dueNow, tracker.planPosition]);
 
   return (
     <div className="shell">
@@ -110,7 +120,7 @@ function Shell() {
             openWeeks={openWeeks}
             setOpenWeeks={setOpenWeeks}
             flashId={flashId}
-            dueRequest={dueRequest}
+            intent={trackerIntent}
           />
         )}
         {view === 'progress' && <ProgressView tracker={tracker} onOpenProblem={openProblem} />}

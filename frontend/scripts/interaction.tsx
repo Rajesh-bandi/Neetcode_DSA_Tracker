@@ -54,7 +54,7 @@ const { createRoot } = await import('react-dom/client');
 const { act } = await import('react');
 const { default: App } = await import('../src/App');
 const { PROBLEMS } = await import('../src/data/problems');
-const { addDays, todayISO, STORE_KEY } = await import('../src/lib/state');
+const { addDays, shortDate, todayISO, STORE_KEY } = await import('../src/lib/state');
 const { shiftDay } = await import('../src/lib/streak');
 
 const root0 = document.getElementById('root') as HTMLElement;
@@ -106,6 +106,20 @@ check('the pet starts asleep', Boolean(document.querySelector('.pet--asleep')));
 check('the heatmap is drawn', document.querySelectorAll('.heat__cell').length === 182, String(document.querySelectorAll('.heat__cell').length));
 check('the streak starts at zero', text('.ledger__v').trim() === '0', text('.ledger__v'));
 check('starts with no progress recorded', Object.keys(store()?.entries ?? {}).length === 0);
+check('a fresh plan puts today on day 1', text('.rail__foot .label') === 'Week 1 · day 1', text('.rail__foot .label'));
+
+console.log("\ntoday's queue with nothing due");
+await act(async () => {
+  click(document.querySelector('.btn--go'));
+});
+check('the queue button opens the tracker', window.location.hash === '#/tracker', window.location.hash);
+check('it lands on real problems, not an empty filter', document.querySelectorAll('.prob').length === 14, String(document.querySelectorAll('.prob').length));
+check('week 1 opens on today, not a past Monday', text('.week__meta').startsWith(shortDate(today)), text('.week__meta'));
+check('day 1 of the plan is today', text('.daygroup__date').includes(shortDate(today)), text('.daygroup__date'));
+check(
+  'no status filter is left on',
+  ![...document.querySelectorAll('.filters .chip')].some((c) => c.getAttribute('aria-pressed') === 'true'),
+);
 
 console.log('\nsolving a problem');
 await act(async () => {
@@ -140,6 +154,36 @@ check("today's heatmap cell lights up", attr('.heat__cell[data-today]', 'data-le
 check('the heatmap readout counts actions', text('.heat__readout').includes('1 action'), text('.heat__readout'));
 check('a fresh day reports nothing due', document.body.textContent.includes('Nothing is due'));
 
+console.log('\nunchecking the solve');
+await act(async () => {
+  navTo('Tracker');
+});
+const solveBox = () => document.querySelector(`#prob-${firstProblem.id} button[role="checkbox"]`);
+await act(async () => {
+  click(solveBox());
+});
+check('unchecking removes the entry', !store()?.entries[firstProblem.id]);
+check('unchecking takes its action off the day', (store()?.activity[today] ?? 0) === 0, JSON.stringify(store()?.activity));
+check('the row goes back to not started', document.getElementById(`prob-${firstProblem.id}`)?.textContent?.includes('Not started') === true);
+
+await act(async () => {
+  navTo('Today');
+});
+check('the pet goes back to sleep', Boolean(document.querySelector('.pet--asleep')), document.querySelector('.pet')?.className);
+check('the pet reports nothing eaten', text('.feed__n').includes('0 problems'), text('.feed__n'));
+check('the streak falls back to zero', text('.ledger__v').trim() === '0', text('.ledger__v'));
+check("today's heatmap cell goes dark", attr('.heat__cell[data-today]', 'data-level') === '0', attr('.heat__cell[data-today]', 'data-level'));
+
+console.log('\nsolving it again');
+await act(async () => {
+  navTo('Tracker');
+});
+await act(async () => {
+  click(solveBox());
+});
+check('the solve comes back', Boolean(store()?.entries[firstProblem.id]));
+check('the day is active again', store()?.activity[today] === 1, JSON.stringify(store()?.activity));
+
 console.log('\nre-solve marks');
 await act(async () => {
   navTo('Tracker');
@@ -169,6 +213,33 @@ const cells = [...document.querySelectorAll('.wall__cell')];
 check('the wall shows 150 squares', cells.length === 150, String(cells.length));
 check('the solved problem fills its square', cells[0].getAttribute('data-f') === '1', cells[0].getAttribute('data-f') ?? '');
 check('the redo square is flagged', cells[0].getAttribute('data-status') === 'redo');
+
+console.log('\na missed day moves the plan up');
+await act(async () => {
+  root.unmount();
+});
+container.remove();
+
+localStorage.clear();
+localStorage.setItem(
+  STORE_KEY,
+  JSON.stringify({
+    version: 2,
+    planStart: addDays(today, -2),
+    entries: { [PROBLEMS[0].id]: { solvedOn: addDays(today, -2), marks: {} } },
+    activity: { [addDays(today, -2)]: 1 },
+  }),
+);
+({ root, container } = await renderApp());
+
+check('the rail counts today as day 2', text('.rail__foot .label') === 'Week 1 · day 2', text('.rail__foot .label'));
+await act(async () => {
+  navTo('Tracker');
+});
+const dayDates = [...document.querySelectorAll('.daygroup__date')].map((n) => n.textContent ?? '');
+check('day 1 keeps the date it was studied', dayDates[0].includes(shortDate(addDays(today, -2))), dayDates[0]);
+check("the missed day's work landed on today", dayDates[1].includes(shortDate(today)), dayDates[1]);
+check('the plan keeps seven days for the week', dayDates.length === 7, String(dayDates.length));
 
 console.log('\nmissed re-solve');
 await act(async () => {
@@ -210,6 +281,21 @@ await act(async () => {
 });
 check('showing the queue filters the list down to it', document.querySelectorAll('.prob').length === 1, String(document.querySelectorAll('.prob').length));
 check('the filtered week still reports its full size', document.querySelector('.week__ratio')?.textContent === '1/14', document.querySelector('.week__ratio')?.textContent ?? 'none');
+
+console.log('\nthe home queue button');
+await act(async () => {
+  navTo('Today');
+});
+await act(async () => {
+  click(document.querySelector('.btn--go'));
+});
+check('opening the due queue filters down to it', document.querySelectorAll('.prob').length === 1, String(document.querySelectorAll('.prob').length));
+check(
+  'the due chip is pressed',
+  [...document.querySelectorAll('.filters .chip')].some(
+    (c) => c.getAttribute('aria-pressed') === 'true' && c.textContent?.includes('Re-solve due'),
+  ),
+);
 
 console.log('\na three-day run');
 await act(async () => {

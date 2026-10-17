@@ -20,21 +20,22 @@ type Props = {
   openWeeks: Set<number>;
   setOpenWeeks: (update: (prev: Set<number>) => Set<number>) => void;
   flashId: string | null;
-  /** Bumped by the home page when it wants the due queue in front. */
-  dueRequest?: number;
+  /** Set by the home page when it wants a particular queue in front. */
+  intent?: { filter: StatusFilter | 'all'; nonce: number } | null;
 };
 
-export function TrackerView({ tracker, openWeeks, setOpenWeeks, flashId, dueRequest = 0 }: Props) {
+export function TrackerView({ tracker, openWeeks, setOpenWeeks, flashId, intent = null }: Props) {
   const [query, setQuery] = useState('');
   const [diffs, setDiffs] = useState<Set<Difficulty>>(new Set());
   const [status, setStatus] = useState<StatusFilter>('all');
 
   const { today, derived, dueNow, redo, solvedCount, masteredCount, planPosition } = tracker;
 
-  // The home page can push the re-solve queue to the front.
+  // The home page can push a queue to the front. Only a fresh request applies
+  // it, so coming back to the tracker later does not re-filter the list.
   useEffect(() => {
-    if (dueRequest > 0) setStatus('due');
-  }, [dueRequest]);
+    if (intent) setStatus(intent.filter);
+  }, [intent?.nonce]);
 
   const filtering = query.trim() !== '' || diffs.size > 0 || status !== 'all';
 
