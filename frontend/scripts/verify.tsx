@@ -265,9 +265,9 @@ const boardHtml = renderToString(withAuth(createElement(LeaderboardView, { track
 const count = (haystack: string, needle: string) => haystack.split(needle).length - 1;
 
 check('the app renders without throwing', appHtml.length > 5000, `${appHtml.length} chars`);
-check('six sections in the rail', count(appHtml, 'class="navitem"') === 6, String(count(appHtml, 'class="navitem"')));
+check('five sections in the rail', count(appHtml, 'class="navitem"') === 5, String(count(appHtml, 'class="navitem"')));
 check('the rail offers the streak board', appHtml.includes('Streak board'));
-check('the rail offers settings', appHtml.includes('Settings'));
+check('the account area offers the profile', appHtml.includes('Profile'));
 check('a guest is offered a sign-in', appHtml.includes('Sign in to sync'));
 check('today is the landing view', appHtml.includes('class="panel panel--pet"'));
 

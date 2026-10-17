@@ -294,12 +294,12 @@ try {
   check('the ledger agrees with the server', text('.ledger__v').trim() === '2', text('.ledger__v'));
   check('the rail reports a saved state', text('.rail__whoMeta').includes('synced'), text('.rail__whoMeta'));
 
-  console.log('\naccount settings');
+  console.log('\nprofile settings');
   await act(async () => {
-    navTo('Settings');
+    click([...document.querySelectorAll('.rail__reset')].find((b) => b.textContent?.includes('Profile')));
   });
-  check('settings shows the signed-in account', text('.settings__identity').includes(email));
-  check('settings offers password change and clear progress', Boolean(document.querySelector('.settings__form')) && Boolean(document.querySelector('.settings__clear')));
+  check('profile shows the signed-in account', text('.settings__identity').includes(email));
+  check('profile offers password change and clear progress', Boolean(document.querySelector('.settings__form')) && Boolean(document.querySelector('.settings__clear')));
   const changedPassword = 'a fresh e2e password 456';
   await act(async () => {
     fill('#settings-current-password', 'e2e password 123');
@@ -309,7 +309,7 @@ try {
   await act(async () => {
     click([...document.querySelectorAll('.settings__form button')].find((b) => b.textContent?.includes('Save new password')));
   });
-  check('settings can change the password and keep the session', await waitFor(() => bodyText().includes('Password changed.')));
+  check('profile can change the password and keep the session', await waitFor(() => bodyText().includes('Password changed.')));
 
   console.log('\nwriting while signed in');
   await act(async () => {

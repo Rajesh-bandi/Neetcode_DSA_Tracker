@@ -5,7 +5,7 @@ import type { Tracker } from '../lib/state';
 
 type Props = { tracker: Tracker; onSignIn: () => void };
 
-export function SettingsView({ tracker, onSignIn }: Props) {
+export function ProfileView({ tracker, onSignIn }: Props) {
   const { user, changePassword } = useAuth();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -51,10 +51,10 @@ export function SettingsView({ tracker, onSignIn }: Props) {
     <div className="wrap settings">
       <header className="pagehead">
         <div className="pagehead__row">
-          <h1 className="h1">Settings</h1>
+          <h1 className="h1">Profile</h1>
         </div>
         <p className="prose" style={{ maxWidth: '58ch' }}>
-          Manage your sign-in and study data.
+          Your account, password, and study data.
         </p>
       </header>
 

@@ -3,7 +3,7 @@ import { STATUS_LABEL, type Tracker } from '../lib/state';
 import { useAuth } from '../lib/auth';
 import type { SyncHandle } from '../lib/sync';
 
-export type View = 'home' | 'tracker' | 'progress' | 'leaderboard' | 'method' | 'settings' | 'login';
+export type View = 'home' | 'tracker' | 'progress' | 'leaderboard' | 'method' | 'profile' | 'login';
 
 const NAV: { id: View; label: string }[] = [
   { id: 'home', label: 'Today' },
@@ -11,7 +11,6 @@ const NAV: { id: View; label: string }[] = [
   { id: 'progress', label: 'Progress' },
   { id: 'leaderboard', label: 'Streak board' },
   { id: 'method', label: 'Method' },
-  { id: 'settings', label: 'Settings' },
 ];
 
 type Props = {
@@ -32,7 +31,7 @@ export function SideRail({ view, onView, tracker, sync, onJumpToWeek }: Props) {
     progress: `${masteredCount} mastered`,
     leaderboard: user ? 'ranked' : 'sign in',
     method: '12 weeks',
-    settings: user ? 'account' : 'local data',
+    profile: user ? 'account' : 'local data',
     login: '',
   };
 
@@ -114,6 +113,9 @@ export function SideRail({ view, onView, tracker, sync, onJumpToWeek }: Props) {
                 </span>
               </span>
               <span className="rail__signoutrow">
+                <button type="button" className="rail__reset" onClick={() => onView('profile')}>
+                  Profile
+                </button>
                 <button type="button" className="rail__reset" onClick={() => void logout()}>
                   Sign out
                 </button>
@@ -128,9 +130,14 @@ export function SideRail({ view, onView, tracker, sync, onJumpToWeek }: Props) {
               </span>
             </>
           ) : (
-            <button type="button" className="rail__signin" onClick={() => onView('login')}>
-              Sign in to sync
-            </button>
+            <span className="rail__signoutrow">
+              <button type="button" className="rail__signin" onClick={() => onView('login')}>
+                Sign in to sync
+              </button>
+              <button type="button" className="rail__reset" onClick={() => onView('profile')}>
+                Profile
+              </button>
+            </span>
           )}
         </div>
 
