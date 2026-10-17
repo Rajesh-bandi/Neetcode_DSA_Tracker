@@ -7,6 +7,7 @@ import {
   addDays,
   daysBetween,
   longDate,
+  relativeDay,
   shortDate,
   type Derived,
   type Stage,
@@ -18,8 +19,6 @@ const STAGE_COLOR: Record<Stage, string> = {
   day7: 'var(--yellow)',
   day30: 'var(--purple)',
 };
-
-const STAGE_SHORT: Record<Stage, string> = { day3: 'D3', day7: 'D7', day30: 'D30' };
 
 type Props = { tracker: Tracker; onOpenProblem: (item: Derived) => void };
 
@@ -217,7 +216,7 @@ export function ProgressView({ tracker, onOpenProblem }: Props) {
       <section className="panel">
         <div className="panel__head">
           <h2 className="h2">Week by week</h2>
-          <span className="panel__aside">started · mastered</span>
+          <span className="panel__aside">started · Day 30 done</span>
         </div>
         <div className="bars">
           {perWeek.map((w) => (
@@ -234,7 +233,7 @@ export function ProgressView({ tracker, onOpenProblem }: Props) {
               </span>
               <span className="bar__counts">
                 <b>{w.started}/{w.count}</b>
-                <small>{w.mastered} mastered</small>
+                <small>{w.mastered} Day 30 done</small>
               </span>
             </div>
           ))}
@@ -260,7 +259,12 @@ export function ProgressView({ tracker, onOpenProblem }: Props) {
           <div className="timeline">
             {timeline.map((d) => (
               <div className="tl" key={d.date}>
-                <span className="tl__n">{d.bits.length || ''}</span>
+                <span
+                  className="tl__n"
+                  title={d.bits.length ? `${d.bits.length} re-solves due ${longDate(d.date)} (${relativeDay(d.date, today)})` : undefined}
+                >
+                  {d.bits.length || ''}
+                </span>
                 <span
                   className="tl__stack"
                   style={{ height: d.bits.length ? `${Math.max(10, (d.bits.length / busiest) * 88)}px` : '0px' }}
@@ -270,7 +274,7 @@ export function ProgressView({ tracker, onOpenProblem }: Props) {
                       key={`${b.title}-${i}`}
                       className="tl__bit"
                       style={{ background: b.overdue ? 'var(--red)' : STAGE_COLOR[b.stage], opacity: 0.85 }}
-                      title={`${b.title} · ${STAGE_SHORT[b.stage]}${b.overdue ? ' overdue' : ''}`}
+                      title={`${b.title} · ${STAGE_LABEL[b.stage]} due ${shortDate(d.date)}${b.overdue ? ' overdue' : ''}`}
                     />
                   ))}
                 </span>
