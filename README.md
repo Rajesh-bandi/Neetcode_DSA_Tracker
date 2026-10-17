@@ -35,12 +35,15 @@ npm start         # serves the app and the API from :8787
 The frontend and the API can live on different hosts — the app on Vercel and the API on Render, for
 instance — with the session cookie travelling cross-site.
 
-**API host** (Render, or anything that runs Node 22.5+ — the backend uses Node's built-in SQLite):
+**API host** (Render, or anything that runs Node 22.5+ — the backend uses Node's built-in SQLite).
+`render.yaml` holds these settings, so Render's *New → Blueprint* can create the service from the
+repo in two clicks; doing it by hand takes:
 
 ```
 Root directory   backend
-Build command    npm install
+Build command    npm ci
 Start command    npm start
+Health check     /api/health
 ```
 
 Set these environment variables:

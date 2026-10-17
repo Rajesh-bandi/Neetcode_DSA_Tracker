@@ -1,0 +1,45 @@
+# Render blueprint for the API half of the tracker.
+#
+# Render needs the repository linked from its own dashboard the first time, so
+# either create the web service by hand with these settings, or use
+# New -> Blueprint and pick this repo to have Render read them from here.
+#
+# The frontend lives on Vercel and points back at this service through
+# VITE_API_BASE_URL; APP_ORIGIN below is the origin allowed to call it.
+services:
+  - type: web
+    name: nc150-api
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      # Anything other than production would hand verification codes to the
+      # browser instead of emailing them.
+      - key: NODE_ENV
+        value: production
+      # The app origin allowed to change data over CORS. Comma-separate more.
+      - key: APP_ORIGIN
+        value: https://neetcode-dsa-tracker.vercel.app
+      # Signs session cookies. Blueprint-generated, so it stays stable across
+      # deploys; rotate it and every browser is signed out.
+      - key: SESSION_SECRET
+        generateValue: true
+      # Mail. Fill these in the dashboard; without them the code is printed to
+      # the deploy log, which is not a place to put someone's login code.
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_SECURE
+        value: "false"
+      - key: MAIL_FROM
+        sync: false
