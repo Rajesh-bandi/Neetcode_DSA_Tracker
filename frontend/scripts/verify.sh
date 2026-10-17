@@ -2,7 +2,7 @@
 # Runs the checks against the real app:
 #   verify      - data integrity, re-solve logic, streaks, merge, rendered markup
 #   interaction - the actual DOM: check a box, mark a re-solve, watch pet/heatmap
-#   account     - the whole stack: real API process, sign-up, OTP, sync, board
+#   account     - the whole stack: real API process, sign-up, sync, board
 # Each is bundled with Vite's SSR pipeline, so no extra build tooling is needed.
 set -euo pipefail
 cd "$(dirname "$0")/.."

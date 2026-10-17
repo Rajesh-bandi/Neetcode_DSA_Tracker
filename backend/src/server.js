@@ -3,7 +3,6 @@ import { dirname, resolve } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { createApp } from './app.js';
 import { openDatabase } from './db.js';
-import { createMailer } from './mail.js';
 
 const here = import.meta.dirname;
 
@@ -40,18 +39,10 @@ const db = await openDatabase();
 const app = createApp({
   db,
   secret: resolveSecret(),
-  mailer: createMailer(),
   appOrigin,
-  isProduction: process.env.NODE_ENV === 'production',
 });
 
-const server = app.listen(port, '0.0.0.0', () => {
-  const mail = createMailer().transport;
-  console.log(`api listening on http://localhost:${port}  (mail: ${mail}, origin: ${appOrigin})`);
-  if (mail === 'console') {
-    console.log('SMTP is not configured — verification codes print to this console.');
-  }
-});
+const server = app.listen(port, '0.0.0.0', () => console.log(`api listening on http://localhost:${port}  (origin: ${appOrigin})`));
 
 function shutdown() {
   server.close(() => {

@@ -105,17 +105,12 @@ export const api = {
     }
   },
 
-  register: (email: string, password: string, name: string) =>
-    post<{ verificationRequired: true; email: string; delivery: 'console' | 'smtp'; devCode?: string }>(
+  register: (email: string, password: string, name: string, username: string) =>
+    post<{ user: PublicUser; streak: StreakInfo }>(
       '/api/auth/register',
-      { email, password, name },
+      { email, password, name, username },
     ),
-
-  verify: (email: string, code: string) => post<{ user: PublicUser; streak: StreakInfo }>('/api/auth/verify', { email, code }),
-
-  resend: (email: string) => post<{ sent: true; delivery: 'console' | 'smtp'; devCode?: string }>('/api/auth/resend', { email }),
-
-  login: (email: string, password: string) => post<{ user: PublicUser; streak: StreakInfo }>('/api/auth/login', { email, password }),
+  login: (identifier: string, password: string) => post<{ user: PublicUser; streak: StreakInfo }>('/api/auth/login', { identifier, password }),
 
   logout: () => post<{ ok: true }>('/api/auth/logout'),
 

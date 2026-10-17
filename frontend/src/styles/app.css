@@ -2359,28 +2359,6 @@ button {
   background: rgba(142, 192, 124, 0.07);
 }
 
-.devhint {
-  font-size: 0.72rem;
-  color: var(--fg-mute);
-  border: 1px dashed var(--line-strong);
-  border-radius: var(--r-sm);
-  padding: 0.5rem 0.6rem;
-  background: var(--bg-soft);
-}
-
-.devhint__code {
-  font-size: 0.95rem;
-  letter-spacing: 0.2em;
-  color: var(--yellow);
-  border-bottom: 1px dotted var(--yellow-dim);
-  padding-bottom: 1px;
-}
-
-.devhint__code:hover {
-  color: var(--aqua);
-  border-color: var(--aqua-dim);
-}
-
 /* -------------------------------------------------------------- controls -- */
 .btn {
   display: inline-flex;

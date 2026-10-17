@@ -1,7 +1,7 @@
 /**
  * Full-stack check: starts the real backend on its own database, points the
  * browser's fetch at it with a cookie jar, and drives sign-up, the emailed
- * code, progress sync, the leaderboard and sign-out through the actual UI.
+ * account, progress sync, the leaderboard and sign-out through the actual UI.
  * Run with scripts/verify.sh.
  */
 import { spawn } from 'node:child_process';
@@ -40,9 +40,6 @@ const server = spawn(process.execPath, [serverEntry], {
     APP_ORIGIN: ORIGIN,
     SESSION_SECRET: 'e2e-secret-not-for-production',
     NODE_ENV: 'test',
-    SMTP_HOST: '',
-    SMTP_USER: '',
-    SMTP_PASS: '',
   },
   stdio: ['ignore', 'pipe', 'pipe'],
 });
@@ -226,32 +223,16 @@ try {
   });
   check('the sign-up form opens', bodyText().includes('Keep the streak in one place'));
 
-  const email = 'e2e@example.com';
+  const email = 'e2e@gmail.com';
   await act(async () => {
-    fill('input[type="text"]', 'Test Runner');
+    fill('input[type="text"]', 'TestRunner');
     fill('input[type="email"]', email);
     fill('input[type="password"]', 'e2e password 123');
   });
   await act(async () => {
     click('button[type="submit"]');
   });
-  const codeStep = await waitFor(() => bodyText().includes('Check your email'));
-  check('the code step appears', codeStep, codeStep ? '' : `form said: ${text('.formerror') || '(nothing)'}`);
-  check('the form names the address', bodyText().includes(email));
-
-  const devCode = text('.devhint__code').trim();
-  check('the code is read from the server', /^\d{6}$/.test(devCode), devCode);
-  check('the hint admits SMTP is not configured', text('.devhint').includes('SMTP is not set up yet'));
-
-  await act(async () => {
-    click('.devhint__code');
-  });
-  check('the code field is filled', document.querySelector<HTMLInputElement>('input.code')?.value === devCode);
-
-  await act(async () => {
-    click('button[type="submit"]');
-  });
-  const signedIn = await waitFor(() => bodyText().includes('Test Runner'));
+  const signedIn = await waitFor(() => bodyText().includes('TestRunner'));
   check('the account opens the app signed in', signedIn);
 
   const sessionCookie = jar.get('nc_session');
@@ -296,10 +277,10 @@ try {
   });
   const boardLoaded = await waitFor(() => bodyText().includes('Ranked by') && Boolean(document.querySelector('.lb__row')));
   check('the board loads for a signed-in account', boardLoaded, boardDebug());
-  check('the board shows the account', text('.lb__name').includes('Test Runner'), text('.lb__name'));
+  check('the board shows the account', text('.lb__name').includes('TestRunner'), text('.lb__name'));
   check('the board marks your own row', bodyText().includes('you'));
   check('the board shows the streak length', text('.lb__streak').trim().startsWith('2'), text('.lb__streak'));
-  check('the board never shows an email', !bodyText().includes('@example.com'));
+  check('the board never shows an email', !bodyText().includes('@gmail.com'));
 
   console.log('\nthe pet follows the synced streak');
   await act(async () => {
@@ -350,13 +331,13 @@ try {
     click([...document.querySelectorAll('.panel__link')].find((b) => b.textContent?.includes('I have one')));
   });
   await act(async () => {
-    fill('input[type="email"]', email);
+    fill('input[autocomplete="username"]', email);
     fill('input[type="password"]', 'e2e password 123');
   });
   await act(async () => {
     click('button[type="submit"]');
   });
-  const backIn = await waitFor(() => bodyText().includes('Test Runner'));
+  const backIn = await waitFor(() => bodyText().includes('TestRunner'));
   check('a password sign-in works', backIn);
 
   const wrong = await nodeFetch(`${base}/api/auth/login`, {

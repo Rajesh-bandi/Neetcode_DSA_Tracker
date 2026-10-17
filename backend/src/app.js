@@ -4,11 +4,8 @@ import { join } from 'node:path';
 import {
   checkPassword,
   clearedSessionCookie,
-  constantTimeEqualHex,
-  hashOtp,
   hashPassword,
   newId,
-  newOtp,
   parseCookies,
   sessionCookie,
   signToken,
@@ -19,9 +16,6 @@ import { summarise, validateProgress } from './progress.js';
 import { isIsoDay, isRecentDay, serverDay, streaks } from './streak.js';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const OTP_TTL_MS = 10 * 60_000;
-const OTP_RESEND_COOLDOWN_MS = 45_000;
-const OTP_MAX_ATTEMPTS = 5;
 
 /* ------------------------------------------------------------------ utils -- */
 
@@ -40,6 +34,7 @@ function publicUser(row) {
   if (!row) return null;
   return {
     id: row.id,
+    username: row.username ?? row.name,
     name: row.name,
     email: row.email,
     createdAt: row.created_at,
@@ -72,7 +67,7 @@ function limiter({ windowMs, max }) {
 
 /* -------------------------------------------------------------------- app -- */
 
-export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:3000', isProduction = false }) {
+export function createApp({ db, secret, appOrigin = 'http://localhost:3000' }) {
   const app = express();
   // Any https origin in the list means this deployment is served over https,
   // which is what allows a cross-site (SameSite=None) session cookie.
@@ -90,7 +85,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
   app.set('trust proxy', 1);
 
   const loginLimiter = limiter({ windowMs: 10 * 60_000, max: 12 });
-  const otpLimiter = limiter({ windowMs: 10 * 60_000, max: 8 });
+  const registerLimiter = limiter({ windowMs: 10 * 60_000, max: 8 });
   const writeLimiter = limiter({ windowMs: 60_000, max: 90 });
 
   app.use((req, res, next) => {
@@ -207,165 +202,45 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
 
   app.post('/api/auth/register', async (req, res) => {
     const email = normaliseEmail(req.body?.email);
-    const name = cleanName(req.body?.name);
+    const username = String(req.body?.username ?? '').trim().toLowerCase();
+    const name = cleanName(req.body?.name || username);
     const password = String(req.body?.password ?? '');
-
-    if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'Enter a valid email address.', field: 'email' });
-    if (name.length < 2) return res.status(400).json({ error: 'Tell us what to call you.', field: 'name' });
-    if (password.length < 8) {
-      return res.status(400).json({ error: 'Use at least 8 characters for your password.', field: 'password' });
-    }
+    if (!EMAIL_RE.test(email) || !email.endsWith('@gmail.com')) return res.status(400).json({ error: 'Enter a valid Gmail address.', field: 'email' });
+    if (!/^[a-z0-9_]{3,24}$/.test(username)) return res.status(400).json({ error: 'Username must be 3–24 letters, numbers, or underscores.', field: 'username' });
+    if (password.length < 8) return res.status(400).json({ error: 'Use at least 8 characters for your password.', field: 'password' });
     if (password.length > 200) return res.status(400).json({ error: 'That password is too long.', field: 'password' });
-
-    const limited = otpLimiter(`register:${req.ip}:${email}`);
-    if (!limited.ok) {
-      return res.status(429).json({ error: `Too many attempts. Try again in ${limited.retryAfter}s.`, retryAfter: limited.retryAfter });
-    }
-
-    const existing = await db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-    if (existing?.verified) {
-      return res.status(409).json({ error: 'That email already has an account. Sign in instead.', code: 'exists' });
-    }
-
-    if (existing) {
-      const pending = await db.prepare('SELECT sent_at FROM otps WHERE email = ?').get(email);
-      if (pending && Date.now() - pending.sent_at < OTP_RESEND_COOLDOWN_MS) {
-        const wait = Math.ceil((OTP_RESEND_COOLDOWN_MS - (Date.now() - pending.sent_at)) / 1000);
-        return res.status(429).json({ error: `A code was just sent. Wait ${wait}s before asking for another.`, retryAfter: wait });
-      }
-      await db.prepare('UPDATE users SET name = ?, password_hash = ? WHERE id = ?').run(name, hashPassword(password), existing.id);
-    } else {
-      await db.prepare('INSERT INTO users (id, email, name, password_hash, verified, created_at) VALUES (?, ?, ?, ?, 0, ?)').run(
-        newId(),
-        email,
-        name,
-        hashPassword(password),
-        new Date().toISOString(),
-      );
-    }
-
-    const code = newOtp();
-    await db.prepare(
-      'INSERT INTO otps (email, code_hash, expires_at, attempts, sent_at) VALUES (?, ?, ?, 0, ?) ' +
-        'ON CONFLICT(email) DO UPDATE SET code_hash = excluded.code_hash, expires_at = excluded.expires_at, attempts = 0, sent_at = excluded.sent_at',
-    ).run(email, hashOtp(email, code, secret), Date.now() + OTP_TTL_MS, Date.now());
-
-    try {
-      await mailer.sendOtp({ email, code, name });
-    } catch (error) {
-      await db.prepare('DELETE FROM otps WHERE email = ?').run(email);
-      console.error('otp delivery failed:', error?.message ?? error);
-      return res.status(502).json({ error: 'Could not send the code. Check the mail configuration and try again.' });
-    }
-
-    return res.status(201).json({
-      verificationRequired: true,
-      email,
-      delivery: mailer.transport,
-      // Console transport only exists when SMTP is unconfigured; never in production.
-      ...(mailer.transport === 'console' && !isProduction ? { devCode: code } : {}),
-    });
-  });
-
-  app.post('/api/auth/verify', async (req, res) => {
-    const email = normaliseEmail(req.body?.email);
-    const code = String(req.body?.code ?? '').replace(/\s+/g, '');
-    if (!EMAIL_RE.test(email) || !/^\d{6}$/.test(code)) {
-      return res.status(400).json({ error: 'Enter the six-digit code from your email.' });
-    }
-
-    const limited = otpLimiter(`verify:${req.ip}:${email}`);
-    if (!limited.ok) {
-      return res.status(429).json({ error: `Too many attempts. Try again in ${limited.retryAfter}s.`, retryAfter: limited.retryAfter });
-    }
-
-    const user = await db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-    if (!user) return res.status(400).json({ error: 'That code is not valid any more. Request a new one.' });
-
-    const otp = await db.prepare('SELECT * FROM otps WHERE email = ?').get(email);
-    if (!otp) return res.status(400).json({ error: 'No code is waiting. Request a new one.', code: 'no-code' });
-    if (otp.expires_at < Date.now()) {
-      await db.prepare('DELETE FROM otps WHERE email = ?').run(email);
-      return res.status(400).json({ error: 'That code has expired. Request a new one.', code: 'expired' });
-    }
-    if (otp.attempts >= OTP_MAX_ATTEMPTS) {
-      return res.status(429).json({ error: 'Too many wrong codes. Request a new one.', code: 'locked' });
-    }
-    if (!constantTimeEqualHex(otp.code_hash, hashOtp(email, code, secret))) {
-      await db.prepare('UPDATE otps SET attempts = attempts + 1 WHERE email = ?').run(email);
-      const left = Math.max(0, OTP_MAX_ATTEMPTS - (otp.attempts + 1));
-      return res.status(400).json({ error: `That code is not right. ${left} ${left === 1 ? 'try' : 'tries'} left.` });
-    }
-
-    await db.prepare('UPDATE users SET verified = 1 WHERE id = ?').run(user.id);
-    await db.prepare('DELETE FROM otps WHERE email = ?').run(email);
+    const limited = registerLimiter(`register:${req.ip}:${email}`);
+    if (!limited.ok) return res.status(429).json({ error: `Too many attempts. Try again in ${limited.retryAfter}s.`, retryAfter: limited.retryAfter });
+    const existing = await db.prepare('SELECT id FROM users WHERE email = ? OR username = ?').get(email, username);
+    if (existing) return res.status(409).json({ error: 'That Gmail or username is already registered.', code: 'exists' });
+    const id = newId();
+    await db.prepare('INSERT INTO users (id, email, username, name, password_hash, verified, created_at) VALUES (?, ?, ?, ?, ?, 1, ?)').run(
+      id, email, username, name, hashPassword(password), new Date().toISOString(),
+    );
+    const user = await db.prepare('SELECT * FROM users WHERE id = ?').get(id);
     await issueSession(req, res, user);
-    return res.json({ user: publicUser({ ...user, verified: 1 }), streak: await streakFor(user.id, serverDay()) });
-  });
-
-  app.post('/api/auth/resend', async (req, res) => {
-    const email = normaliseEmail(req.body?.email);
-    if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'Enter a valid email address.' });
-
-    const limited = otpLimiter(`resend:${req.ip}:${email}`);
-    if (!limited.ok) {
-      return res.status(429).json({ error: `Too many attempts. Try again in ${limited.retryAfter}s.`, retryAfter: limited.retryAfter });
-    }
-
-    const user = await db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-    if (!user || user.verified) {
-      return res.status(400).json({ error: 'There is no pending sign-up for that email.', code: 'no-pending' });
-    }
-
-    const pending = await db.prepare('SELECT sent_at FROM otps WHERE email = ?').get(email);
-    if (pending && Date.now() - pending.sent_at < OTP_RESEND_COOLDOWN_MS) {
-      const wait = Math.ceil((OTP_RESEND_COOLDOWN_MS - (Date.now() - pending.sent_at)) / 1000);
-      return res.status(429).json({ error: `A code was just sent. Wait ${wait}s.`, retryAfter: wait });
-    }
-
-    const code = newOtp();
-    await db.prepare(
-      'INSERT INTO otps (email, code_hash, expires_at, attempts, sent_at) VALUES (?, ?, ?, 0, ?) ' +
-        'ON CONFLICT(email) DO UPDATE SET code_hash = excluded.code_hash, expires_at = excluded.expires_at, attempts = 0, sent_at = excluded.sent_at',
-    ).run(email, hashOtp(email, code, secret), Date.now() + OTP_TTL_MS, Date.now());
-
-    try {
-      await mailer.sendOtp({ email, code, name: user.name });
-    } catch (error) {
-      console.error('otp delivery failed:', error?.message ?? error);
-      return res.status(502).json({ error: 'Could not send the code. Check the mail configuration and try again.' });
-    }
-
-    return res.json({
-      sent: true,
-      delivery: mailer.transport,
-      ...(mailer.transport === 'console' && !isProduction ? { devCode: code } : {}),
-    });
+    return res.status(201).json({ user: publicUser(user), streak: await streakFor(user.id, serverDay()) });
   });
 
   app.post('/api/auth/login', async (req, res) => {
-    const email = normaliseEmail(req.body?.email);
+    const identifier = String(req.body?.identifier ?? req.body?.email ?? '').trim().toLowerCase();
     const password = String(req.body?.password ?? '');
-    if (!EMAIL_RE.test(email) || !password) {
-      return res.status(400).json({ error: 'Enter your email and password.' });
+    if (!identifier || !password) {
+      return res.status(400).json({ error: 'Enter your username or Gmail and password.' });
     }
 
-    const limited = loginLimiter(`login:${req.ip}:${email}`);
+    const limited = loginLimiter(`login:${req.ip}:${identifier}`);
     if (!limited.ok) {
       return res.status(429).json({ error: `Too many attempts. Try again in ${limited.retryAfter}s.`, retryAfter: limited.retryAfter });
     }
 
-    const user = await db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+    const user = await db.prepare('SELECT * FROM users WHERE email = ? OR username = ?').get(identifier, identifier);
     // Same work on both branches so a missing account is not measurable.
     const stored = user?.password_hash ?? 'scrypt$16384$8$1$AAAAAAAAAAAAAAAAAAAAAA==$AAAA';
     const valid = checkPassword(password, stored);
     if (!user || !valid) {
       return res.status(401).json({ error: 'Email or password is incorrect.' });
     }
-    if (!user.verified) {
-      return res.status(403).json({ error: 'Verify your email before signing in.', code: 'unverified', email });
-    }
-
     await issueSession(req, res, user);
     return res.json({ user: publicUser(user), streak: await streakFor(user.id, serverDay()) });
   });
@@ -454,7 +329,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
     const users = await db
       .prepare(
         'SELECT u.id, u.name, p.solved, p.mastered FROM users u ' +
-          'LEFT JOIN progress p ON p.user_id = u.id WHERE u.verified = 1',
+          'LEFT JOIN progress p ON p.user_id = u.id',
       )
       .all();
     const activityRows = await db.prepare('SELECT user_id, day FROM activity').all();
@@ -509,7 +384,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
 
   /* ----------------------------------------------------------------- misc -- */
 
-  app.get('/api/health', (req, res) => res.json({ ok: true, mail: mailer.transport }));
+  app.get('/api/health', (req, res) => res.json({ ok: true }));
 
   app.use('/api', (req, res) => res.status(404).json({ error: 'No such endpoint.' }));
 

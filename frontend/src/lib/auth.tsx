@@ -6,10 +6,8 @@ type AuthValue = {
   streak: StreakInfo | null;
   /** False until the first session check finishes. */
   ready: boolean;
-  register: (email: string, password: string, name: string) => Promise<{ email: string; devCode?: string; delivery: string }>;
-  verify: (email: string, code: string) => Promise<void>;
-  resend: (email: string) => Promise<{ devCode?: string; delivery: string }>;
-  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string, username: string) => Promise<void>;
+  login: (identifier: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   /** Drops every session for the account, this browser included. */
   logoutEverywhere: () => Promise<void>;
@@ -42,24 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const register = useCallback(async (email: string, password: string, name: string) => {
-    const result = await api.register(email, password, name);
-    return { email: result.email, devCode: result.devCode, delivery: result.delivery };
-  }, []);
-
-  const verify = useCallback(async (email: string, code: string) => {
-    const result = await api.verify(email, code);
+  const register = useCallback(async (email: string, password: string, name: string, username: string) => {
+    const result = await api.register(email, password, name, username);
     setUser(result.user);
     setStreak(result.streak);
   }, []);
-
-  const resend = useCallback(async (email: string) => {
-    const result = await api.resend(email);
-    return { devCode: result.devCode, delivery: result.delivery };
-  }, []);
-
-  const login = useCallback(async (email: string, password: string) => {
-    const result = await api.login(email, password);
+  const login = useCallback(async (identifier: string, password: string) => {
+    const result = await api.login(identifier, password);
     setUser(result.user);
     setStreak(result.streak);
   }, []);
@@ -77,8 +64,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthValue>(
-    () => ({ user, streak, ready, register, verify, resend, login, logout, logoutEverywhere, setStreak }),
-    [user, streak, ready, register, verify, resend, login, logout, logoutEverywhere],
+    () => ({ user, streak, ready, register, login, logout, logoutEverywhere, setStreak }),
+    [user, streak, ready, register, login, logout, logoutEverywhere],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

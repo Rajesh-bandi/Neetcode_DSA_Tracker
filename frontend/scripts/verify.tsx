@@ -300,10 +300,10 @@ check('method renders the rule', methodHtml.includes(RULE));
 check('method renders six loop steps', count(methodHtml, 'loopstep"') >= 6);
 check('method lists twelve weeks', count(methodHtml, 'class="planrow"') === 12);
 
-check('the sign-up form asks for name, email and password', count(authHtml, 'class="field"') === 3, String(count(authHtml, 'class="field"')));
-check('the sign-up form explains the code', authHtml.includes('We email a six-digit code'));
+check('the sign-up form asks for username, Gmail and password', count(authHtml, 'class="field"') === 3, String(count(authHtml, 'class="field"')));
+check('the sign-up form explains username and Gmail sign-in', authHtml.includes('Use your username, Gmail address, and password'));
 check('the auth page carries the rule', authHtml.includes(RULE.slice(0, 40)));
-check('no code is shown before one is sent', !authHtml.includes('SMTP is not set up yet'));
+check('the auth page supports username or Gmail sign-in', authHtml.includes('Sign in with your username or Gmail address'));
 
 check('the board asks guests to sign in', boardHtml.includes('The board opens with an account'));
 check('the board explains how a streak is counted', boardHtml.includes('How the run is counted'));

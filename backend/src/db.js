@@ -6,18 +6,11 @@ const SCHEMA = `
   CREATE TABLE IF NOT EXISTS users (
     id            TEXT PRIMARY KEY,
     email         TEXT NOT NULL UNIQUE,
+    username      TEXT UNIQUE,
     name          TEXT NOT NULL,
     password_hash TEXT NOT NULL,
     verified      INTEGER NOT NULL DEFAULT 0,
     created_at    TEXT NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS otps (
-    email      TEXT PRIMARY KEY,
-    code_hash  TEXT NOT NULL,
-    expires_at INTEGER NOT NULL,
-    attempts   INTEGER NOT NULL DEFAULT 0,
-    sent_at    INTEGER NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS progress (
@@ -84,6 +77,7 @@ export async function openDatabase({ url, authToken, file } = {}) {
     const token = authToken ?? (process.env.TURSO_AUTH_TOKEN?.trim() || undefined);
     const client = createClient({ url: remoteUrl, authToken: token });
     await client.executeMultiple(SCHEMA);
+    await migrateUsers(client);
     return shim(client);
   }
 
@@ -93,7 +87,17 @@ export async function openDatabase({ url, authToken, file } = {}) {
   await client.execute('PRAGMA journal_mode = WAL');
   await client.execute('PRAGMA foreign_keys = ON');
   await client.executeMultiple(SCHEMA);
+  await migrateUsers(client);
   return shim(client);
+}
+
+async function migrateUsers(client) {
+  const columns = await client.execute('PRAGMA table_info(users)');
+  if (!columns.rows.some((column) => column.name === 'username')) {
+    await client.execute('ALTER TABLE users ADD COLUMN username TEXT');
+  }
+  await client.execute('CREATE UNIQUE INDEX IF NOT EXISTS users_username ON users(username)');
+  await client.execute('DROP TABLE IF EXISTS otps');
 }
 
 function defaultDatabasePath() {

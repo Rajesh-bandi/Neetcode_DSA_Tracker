@@ -8,7 +8,7 @@ Gruvbox dark throughout. No UI or chart library — every graphic is drawn from 
 
 ```
 frontend/   Vite + React + TypeScript single-page app
-backend/    Express + SQLite (Turso in production, a local file in dev): accounts, OTP, progress sync, streaks, leaderboard
+backend/    Express + SQLite (Turso in production, a local file in dev): accounts, progress sync, streaks, leaderboard
 data/       the workbook export the problem list is generated from
 scripts/    dev runner for both halves
 ```
@@ -53,7 +53,6 @@ Set these environment variables:
 | `APP_ORIGIN` | the app's origin, e.g. `https://your-app.vercel.app` — comma-separate several |
 | `SESSION_SECRET` | a long random string; keep it stable or every deploy signs users out |
 | `NODE_ENV` | `production` |
-| `SMTP_*` | as in `backend/.env.example`, otherwise codes print to the deploy log |
 | `TURSO_DATABASE_URL` | from `turso db create nc150` — a hosted SQLite on the free tier |
 | `TURSO_AUTH_TOKEN` | from `turso db tokens create nc150` |
 
@@ -83,34 +82,15 @@ calls `/api` on its own origin, which is what the dev proxy and the single-host 
 
 ## Accounts
 
-Email + password, confirmed with a six-digit code.
-
-**Without SMTP configured** the code is printed to the API console *and* shown on the verification
-step, so you can sign up immediately. Set the mail variables to stop the code from reaching the
-browser:
-
-```bash
-cp backend/.env.example backend/.env
-```
-
-For Gmail, `SMTP_PASS` must be a 16-character **Google App Password**, not the account password
-(Google account → Security → 2-Step Verification → App passwords). Then:
-
-```
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=you@gmail.com
-SMTP_PASS=your16charapp
-MAIL_FROM="NeetCode 150 <you@gmail.com>"
-```
+Username + Gmail + password. Accounts are active immediately, and you can sign in with either your
+username or Gmail address and password.
 
 Also set `SESSION_SECRET` in production; without it a key is generated once into
 `backend/data/session.secret`.
 
-What the API does for you: scrypt password hashes, hashed single-use codes with a 10-minute expiry
-and a five-attempt limit, HMAC-signed session cookies (HttpOnly, SameSite=Lax) with a server-side row
-per session so signing out really revokes the token, a same-origin check on mutations, and per-IP rate
-limits on sign-up, sign-in and code requests.
+What the API does for you: scrypt password hashes, HMAC-signed session cookies (HttpOnly,
+SameSite=Lax) with a server-side row per session so signing out really revokes the token, a same-origin
+check on mutations, and per-IP rate limits on sign-up and sign-in.
 
 ## What is in the app
 

@@ -68,27 +68,6 @@ export function checkPassword(password, stored) {
   }
 }
 
-/* ------------------------------------------------------------------- otp -- */
-
-/** OTPs are stored as a keyed hash, never in plain text. */
-export function hashOtp(email, code, pepper) {
-  return createHmac('sha256', pepper).update(`${email}:${code}`).digest('hex');
-}
-
-export function newOtp() {
-  return String(randomBytes(4).readUInt32BE(0) % 1_000_000).padStart(6, '0');
-}
-
-export function constantTimeEqualHex(a, b) {
-  try {
-    const left = Buffer.from(String(a), 'hex');
-    const right = Buffer.from(String(b), 'hex');
-    return left.length === right.length && timingSafeEqual(left, right);
-  } catch {
-    return false;
-  }
-}
-
 /* --------------------------------------------------------------- cookies -- */
 
 export const SESSION_COOKIE = 'nc_session';

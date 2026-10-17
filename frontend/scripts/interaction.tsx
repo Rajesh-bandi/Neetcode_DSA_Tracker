@@ -355,7 +355,7 @@ check('sign in asks for two fields', document.querySelectorAll('.authpage .field
 check(
   'a sign-in attempt without the API reports it instead of hanging',
   (await (async () => {
-    const email = document.querySelector<HTMLInputElement>('input[type="email"]');
+    const email = document.querySelector<HTMLInputElement>('input[autocomplete="username"]');
     const password = document.querySelector<HTMLInputElement>('input[type="password"]');
     if (!email || !password) return false;
     await act(async () => {

@@ -25,15 +25,8 @@ function check(name, condition, detail = '') {
 
 const dir = mkdtempSync(join(tmpdir(), 'nc150-api-'));
 const db = await openDatabase({ file: join(dir, 'test.db') });
-const sent = [];
-const mailer = {
-  transport: 'console',
-  async sendOtp({ email, code }) {
-    sent.push({ email, code });
-  },
-};
 const SECRET = 'test-secret-not-for-production';
-const app = createApp({ db, secret: SECRET, mailer, appOrigin: 'http://localhost:3000', isProduction: true });
+const app = createApp({ db, secret: SECRET, appOrigin: 'http://localhost:3000' });
 const server = await new Promise((resolve) => {
   const s = app.listen(0, '127.0.0.1', () => resolve(s));
 });
@@ -63,7 +56,6 @@ async function call(method, path, body, options = {}) {
   return { status: res.status, data, setCookie, raw: res };
 }
 
-const lastCode = () => sent.at(-1)?.code;
 
 try {
   console.log('\nhealth');
@@ -71,37 +63,24 @@ try {
   check('health answers', health.status === 200 && health.data.ok === true);
 
   console.log('\nregistration');
-  const email = 'ada@example.com';
+  const email = 'ada@gmail.com';
   const password = 'correct horse battery';
-  const register = await call('POST', '/api/auth/register', { email, password, name: 'Ada Lovelace' });
-  check('register creates a pending account', register.status === 201, `${register.status}`);
-  check('register asks for verification', register.data.verificationRequired === true);
-  check('a six-digit code was generated', /^\d{6}$/.test(lastCode() ?? ''), lastCode());
+  const register = await call('POST', '/api/auth/register', { email, password, name: 'Ada Lovelace', username: 'ada' });
+  check('register creates an active account', register.status === 201, `${register.status}`);
+  check('registration issues a session cookie', cookie.includes('nc_session='), cookie);
   check('the response never contains the password', !JSON.stringify(register.data).includes(password));
-  check('production responses do not leak the code', register.data.devCode === undefined);
 
-  const badEmail = await call('POST', '/api/auth/register', { email: 'not-an-email', password, name: 'X Y' });
+  const badEmail = await call('POST', '/api/auth/register', { email: 'not-an-email', password, name: 'X Y', username: 'xuser' });
   check('invalid email is rejected', badEmail.status === 400 && badEmail.data.field === 'email');
 
-  const shortPassword = await call('POST', '/api/auth/register', { email: 'b@example.com', password: 'short', name: 'B B' });
+  const shortPassword = await call('POST', '/api/auth/register', { email: 'b@gmail.com', password: 'short', name: 'B B', username: 'buser' });
   check('short password is rejected', shortPassword.status === 400 && shortPassword.data.field === 'password');
 
-  console.log('\nverification');
-  const wrong = await call('POST', '/api/auth/verify', { email, code: '000000' });
-  check('a wrong code is rejected', wrong.status === 400, `${wrong.status}`);
+  check('the cookie is http-only and lax', register.setCookie[0].includes('HttpOnly') && register.setCookie[0].includes('SameSite=Lax'));
+  check('registration returns the user immediately', register.data.user?.email === email);
 
-  const verify = await call('POST', '/api/auth/verify', { email, code: lastCode() });
-  check('the emailed code verifies the account', verify.status === 200, `${verify.status}`);
-  check('verification issues a session cookie', cookie.includes('nc_session='), cookie);
-  check('the cookie is http-only and lax', verify.setCookie[0].includes('HttpOnly') && verify.setCookie[0].includes('SameSite=Lax'));
-  check('the user comes back verified', verify.data.user?.verified === true);
-  check('the email is normalised to lower case', verify.data.user?.email === email);
-
-  const reuse = await call('POST', '/api/auth/verify', { email, code: lastCode() });
-  check('a code cannot be used twice', reuse.status === 400, `${reuse.status}`);
-
-  const duplicate = await call('POST', '/api/auth/register', { email, password, name: 'Ada Again' });
-  check('registering a verified email is refused', duplicate.status === 409 && duplicate.data.code === 'exists');
+  const duplicate = await call('POST', '/api/auth/register', { email, password, name: 'Ada Again', username: 'ada2' });
+  check('registering a duplicate email is refused', duplicate.status === 409 && duplicate.data.code === 'exists');
 
   console.log('\nsession revocation');
   const beforeLogout = cookie;
@@ -199,11 +178,10 @@ try {
   check('activity keeps the highest count for a day', afterLower.data.activity[day(0)] === 2, JSON.stringify(afterLower.data.activity));
 
   console.log('\nisolation and leaderboard');
-  const otherEmail = 'grace@example.com';
-  await call('POST', '/api/auth/register', { email: otherEmail, password: 'hopper 1906 !!', name: 'Grace Hopper' });
-  const otherVerify = await call('POST', '/api/auth/verify', { email: otherEmail, code: lastCode() }, { capture: false });
-  check('the second account verifies', otherVerify.status === 200);
-  const otherCookie = otherVerify.setCookie.map((c) => c.split(';')[0]).join('; ');
+  const otherEmail = 'grace@gmail.com';
+  const otherRegister = await call('POST', '/api/auth/register', { email: otherEmail, password: 'hopper 1906 !!', name: 'Grace Hopper', username: 'grace' }, { capture: false });
+  check('the second account registers immediately', otherRegister.status === 201);
+  const otherCookie = otherRegister.setCookie.map((c) => c.split(';')[0]).join('; ');
 
   const otherProgress = await call('GET', '/api/progress', undefined, { cookie: otherCookie });
   check('a new account starts empty', Object.keys(otherProgress.data.entries).length === 0);
@@ -219,7 +197,7 @@ try {
   check('the leader shows a 3-day streak', boardAuthed.data.entries[0].currentStreak === 3);
   check('the second account sits at zero', boardAuthed.data.entries[1].currentStreak === 0);
   check('the leaderboard marks you', boardAuthed.data.entries.some((e) => e.isYou));
-  check('the leaderboard never exposes emails', !JSON.stringify(boardAuthed.data).includes('@example.com'));
+  check('the leaderboard never exposes emails', !JSON.stringify(boardAuthed.data).includes('@gmail.com'));
   check('initials are derived', boardAuthed.data.entries[0].initials === 'AL');
 
   // Three consecutive days for Grace so the ordering is not just a tie-break.
@@ -239,19 +217,6 @@ try {
   check('longest streak is tracked', reordered.data.entries[0].longestStreak === 5);
   check('today is reported as active', reordered.data.entries[0].activeToday === true);
   check('the viewer is pinned as you', reordered.data.you?.name === 'Ada Lovelace');
-
-  console.log('\notp limits');
-  const lockEmail = 'lock@example.com';
-  await call('POST', '/api/auth/register', { email: lockEmail, password: 'long enough password', name: 'Lock Test' });
-  for (let i = 0; i < 5; i += 1) {
-    await call('POST', '/api/auth/verify', { email: lockEmail, code: '111111' });
-  }
-  const locked = await call('POST', '/api/auth/verify', { email: lockEmail, code: '111111' });
-  check('five wrong codes lock the attempt', locked.status === 429, `${locked.status}`);
-  const lockedRight = await call('POST', '/api/auth/verify', { email: lockEmail, code: lastCode() });
-  check('a locked account needs a new code', lockedRight.status === 429);
-  const resend = await call('POST', '/api/auth/resend', { email: lockEmail });
-  check('resending is rate limited right after a send', resend.status === 429 && resend.data.retryAfter > 0, `${resend.status}`);
 
   console.log('\nstreak helper');
   const set = new Set([day(0), day(-1), day(-2), day(-5), day(-6)]);

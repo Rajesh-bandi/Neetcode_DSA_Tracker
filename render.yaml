@@ -18,8 +18,6 @@ services:
     healthCheckPath: /api/health
     autoDeployTrigger: commit
     envVars:
-      # Anything other than production would hand verification codes to the
-      # browser instead of emailing them.
       - key: NODE_ENV
         value: production
       # The app origin allowed to change data over CORS. Comma-separate more.
@@ -36,18 +34,4 @@ services:
       - key: TURSO_DATABASE_URL
         sync: false
       - key: TURSO_AUTH_TOKEN
-        sync: false
-      # Mail. Fill these in the dashboard; without them the code is printed to
-      # the deploy log, which is not a place to put someone's login code.
-      - key: SMTP_HOST
-        sync: false
-      - key: SMTP_PORT
-        value: "587"
-      - key: SMTP_USER
-        sync: false
-      - key: SMTP_PASS
-        sync: false
-      - key: SMTP_SECURE
-        value: "false"
-      - key: MAIL_FROM
         sync: false
