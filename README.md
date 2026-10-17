@@ -8,7 +8,7 @@ Gruvbox dark throughout. No UI or chart library — every graphic is drawn from 
 
 ```
 frontend/   Vite + React + TypeScript single-page app
-backend/    Express + Node's built-in SQLite: accounts, OTP, progress sync, streaks, leaderboard
+backend/    Express + SQLite (Turso in production, a local file in dev): accounts, OTP, progress sync, streaks, leaderboard
 data/       the workbook export the problem list is generated from
 scripts/    dev runner for both halves
 ```
@@ -35,7 +35,7 @@ npm start         # serves the app and the API from :8787
 The frontend and the API can live on different hosts — the app on Vercel and the API on Render, for
 instance — with the session cookie travelling cross-site.
 
-**API host** (Render, or anything that runs Node 22.5+ — the backend uses Node's built-in SQLite).
+**API host** (Render, or anything that runs Node 22.5+ — the backend speaks SQLite through libSQL).
 `render.yaml` holds these settings, so Render's *New → Blueprint* can create the service from the
 repo in two clicks; doing it by hand takes:
 
@@ -54,10 +54,23 @@ Set these environment variables:
 | `SESSION_SECRET` | a long random string; keep it stable or every deploy signs users out |
 | `NODE_ENV` | `production` |
 | `SMTP_*` | as in `backend/.env.example`, otherwise codes print to the deploy log |
+| `TURSO_DATABASE_URL` | from `turso db create nc150` — a hosted SQLite on the free tier |
+| `TURSO_AUTH_TOKEN` | from `turso db tokens create nc150` |
 
 Only origins listed in `APP_ORIGIN` may change data, and they are the origins the API answers CORS
 for. Because that origin is `https`, the session cookie is sent as `SameSite=None; Secure`, which is
 what a cross-site frontend needs.
+
+**The database.** Set `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` and every account, streak and
+solve lives in a Turso database on the free tier — the same SQL either way, because libSQL is
+SQLite. Leave them unset and the API keeps everything in a local `backend/data/tracker.db`, which
+suits development but is wiped on each deploy on hosts with an ephemeral filesystem (Render's free
+plan included). Both Turso values come from two commands:
+
+```bash
+turso db create nc150         # prints TURSO_DATABASE_URL=libsql://nc150-<you>.turso.io
+turso db tokens create nc150  # prints TURSO_AUTH_TOKEN=<token>
+```
 
 **App host** (Vercel):
 
@@ -133,7 +146,7 @@ re-solves all count, because a re-solve day is still a study day.
 
 ```bash
 npm test                                        # everything below
-npm --prefix backend test                       # 70 API checks against a real SQLite file
+npm --prefix backend test                       # 70 API checks against a real SQLite database
 npm --prefix frontend run verify                # 196 checks: logic, SSR markup, DOM, full stack
 npm --prefix frontend run typecheck
 ```

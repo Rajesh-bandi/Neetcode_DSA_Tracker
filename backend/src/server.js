@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { createApp } from './app.js';
-import { openDatabase, defaultDatabasePath } from './db.js';
+import { openDatabase } from './db.js';
 import { createMailer } from './mail.js';
 
 const here = import.meta.dirname;
@@ -35,7 +35,8 @@ function resolveSecret() {
   return secret;
 }
 
-const db = openDatabase(defaultDatabasePath());
+// Turso when TURSO_DATABASE_URL is set (production), a local file otherwise.
+const db = await openDatabase();
 const app = createApp({
   db,
   secret: resolveSecret(),

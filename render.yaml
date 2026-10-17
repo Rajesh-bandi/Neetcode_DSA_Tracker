@@ -29,6 +29,14 @@ services:
       # deploys; rotate it and every browser is signed out.
       - key: SESSION_SECRET
         generateValue: true
+      # Turso's free tier keeps accounts and progress past deploys and
+      # spin-downs, which the free plan's local disk would not. Fill both in
+      # the dashboard: turso db create nc150, then turso db tokens create
+      # nc150. Left unset, the API falls back to a local SQLite file.
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
       # Mail. Fill these in the dashboard; without them the code is printed to
       # the deploy log, which is not a place to put someone's login code.
       - key: SMTP_HOST

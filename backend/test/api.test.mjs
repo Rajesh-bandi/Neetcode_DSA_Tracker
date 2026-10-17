@@ -24,7 +24,7 @@ function check(name, condition, detail = '') {
 }
 
 const dir = mkdtempSync(join(tmpdir(), 'nc150-api-'));
-const db = openDatabase(join(dir, 'test.db'));
+const db = await openDatabase({ file: join(dir, 'test.db') });
 const sent = [];
 const mailer = {
   transport: 'console',

@@ -161,45 +161,45 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
 
   /* --------------------------------------------------------------- session -- */
 
-  function sessionUser(req) {
+  async function sessionUser(req) {
     const token = parseCookies(req.get('cookie'))[SESSION_COOKIE];
     const claim = verifyToken(token, secret);
     if (!claim) return null;
     // A token whose session row is gone (signed out) is dead even if the
     // signature still checks out.
-    const live = db.prepare('SELECT 1 AS ok FROM sessions WHERE jti = ? AND expires_at > ?').get(claim.jti, Date.now());
+    const live = await db.prepare('SELECT 1 AS ok FROM sessions WHERE jti = ? AND expires_at > ?').get(claim.jti, Date.now());
     if (!live) return null;
-    const row = db.prepare('SELECT * FROM users WHERE id = ?').get(claim.userId);
+    const row = await db.prepare('SELECT * FROM users WHERE id = ?').get(claim.userId);
     return row ?? null;
   }
 
-  function requireAuth(req, res, next) {
-    const user = sessionUser(req);
+  async function requireAuth(req, res, next) {
+    const user = await sessionUser(req);
     if (!user) return res.status(401).json({ error: 'Sign in to continue.' });
     req.user = user;
     return next();
   }
 
-  function activityFor(userId) {
-    const rows = db.prepare('SELECT day, count FROM activity WHERE user_id = ?').all(userId);
+  async function activityFor(userId) {
+    const rows = await db.prepare('SELECT day, count FROM activity WHERE user_id = ?').all(userId);
     return Object.fromEntries(rows.map((r) => [r.day, r.count]));
   }
 
-  function streakFor(userId, today) {
-    const days = db.prepare('SELECT day FROM activity WHERE user_id = ?').all(userId).map((r) => r.day);
+  async function streakFor(userId, today) {
+    const days = (await db.prepare('SELECT day FROM activity WHERE user_id = ?').all(userId)).map((r) => r.day);
     return streaks(days, today);
   }
 
-  function issueSession(req, res, user) {
+  async function issueSession(req, res, user) {
     const { token, jti, expiresAt } = signToken(user.id, secret);
-    db.prepare('INSERT INTO sessions (jti, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)').run(
+    await db.prepare('INSERT INTO sessions (jti, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)').run(
       jti,
       user.id,
       Date.now(),
       expiresAt,
     );
     // Cheap housekeeping: dropped cookies and expired rows have no value.
-    db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(Date.now());
+    await db.prepare('DELETE FROM sessions WHERE expires_at < ?').run(Date.now());
     res.setHeader('Set-Cookie', sessionCookie(token, cookieShape(req)));
   }
 
@@ -222,20 +222,20 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
       return res.status(429).json({ error: `Too many attempts. Try again in ${limited.retryAfter}s.`, retryAfter: limited.retryAfter });
     }
 
-    const existing = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+    const existing = await db.prepare('SELECT * FROM users WHERE email = ?').get(email);
     if (existing?.verified) {
       return res.status(409).json({ error: 'That email already has an account. Sign in instead.', code: 'exists' });
     }
 
     if (existing) {
-      const pending = db.prepare('SELECT sent_at FROM otps WHERE email = ?').get(email);
+      const pending = await db.prepare('SELECT sent_at FROM otps WHERE email = ?').get(email);
       if (pending && Date.now() - pending.sent_at < OTP_RESEND_COOLDOWN_MS) {
         const wait = Math.ceil((OTP_RESEND_COOLDOWN_MS - (Date.now() - pending.sent_at)) / 1000);
         return res.status(429).json({ error: `A code was just sent. Wait ${wait}s before asking for another.`, retryAfter: wait });
       }
-      db.prepare('UPDATE users SET name = ?, password_hash = ? WHERE id = ?').run(name, hashPassword(password), existing.id);
+      await db.prepare('UPDATE users SET name = ?, password_hash = ? WHERE id = ?').run(name, hashPassword(password), existing.id);
     } else {
-      db.prepare('INSERT INTO users (id, email, name, password_hash, verified, created_at) VALUES (?, ?, ?, ?, 0, ?)').run(
+      await db.prepare('INSERT INTO users (id, email, name, password_hash, verified, created_at) VALUES (?, ?, ?, ?, 0, ?)').run(
         newId(),
         email,
         name,
@@ -245,7 +245,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
     }
 
     const code = newOtp();
-    db.prepare(
+    await db.prepare(
       'INSERT INTO otps (email, code_hash, expires_at, attempts, sent_at) VALUES (?, ?, ?, 0, ?) ' +
         'ON CONFLICT(email) DO UPDATE SET code_hash = excluded.code_hash, expires_at = excluded.expires_at, attempts = 0, sent_at = excluded.sent_at',
     ).run(email, hashOtp(email, code, secret), Date.now() + OTP_TTL_MS, Date.now());
@@ -253,7 +253,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
     try {
       await mailer.sendOtp({ email, code, name });
     } catch (error) {
-      db.prepare('DELETE FROM otps WHERE email = ?').run(email);
+      await db.prepare('DELETE FROM otps WHERE email = ?').run(email);
       console.error('otp delivery failed:', error?.message ?? error);
       return res.status(502).json({ error: 'Could not send the code. Check the mail configuration and try again.' });
     }
@@ -267,7 +267,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
     });
   });
 
-  app.post('/api/auth/verify', (req, res) => {
+  app.post('/api/auth/verify', async (req, res) => {
     const email = normaliseEmail(req.body?.email);
     const code = String(req.body?.code ?? '').replace(/\s+/g, '');
     if (!EMAIL_RE.test(email) || !/^\d{6}$/.test(code)) {
@@ -279,28 +279,28 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
       return res.status(429).json({ error: `Too many attempts. Try again in ${limited.retryAfter}s.`, retryAfter: limited.retryAfter });
     }
 
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+    const user = await db.prepare('SELECT * FROM users WHERE email = ?').get(email);
     if (!user) return res.status(400).json({ error: 'That code is not valid any more. Request a new one.' });
 
-    const otp = db.prepare('SELECT * FROM otps WHERE email = ?').get(email);
+    const otp = await db.prepare('SELECT * FROM otps WHERE email = ?').get(email);
     if (!otp) return res.status(400).json({ error: 'No code is waiting. Request a new one.', code: 'no-code' });
     if (otp.expires_at < Date.now()) {
-      db.prepare('DELETE FROM otps WHERE email = ?').run(email);
+      await db.prepare('DELETE FROM otps WHERE email = ?').run(email);
       return res.status(400).json({ error: 'That code has expired. Request a new one.', code: 'expired' });
     }
     if (otp.attempts >= OTP_MAX_ATTEMPTS) {
       return res.status(429).json({ error: 'Too many wrong codes. Request a new one.', code: 'locked' });
     }
     if (!constantTimeEqualHex(otp.code_hash, hashOtp(email, code, secret))) {
-      db.prepare('UPDATE otps SET attempts = attempts + 1 WHERE email = ?').run(email);
+      await db.prepare('UPDATE otps SET attempts = attempts + 1 WHERE email = ?').run(email);
       const left = Math.max(0, OTP_MAX_ATTEMPTS - (otp.attempts + 1));
       return res.status(400).json({ error: `That code is not right. ${left} ${left === 1 ? 'try' : 'tries'} left.` });
     }
 
-    db.prepare('UPDATE users SET verified = 1 WHERE id = ?').run(user.id);
-    db.prepare('DELETE FROM otps WHERE email = ?').run(email);
-    issueSession(req, res, user);
-    return res.json({ user: publicUser({ ...user, verified: 1 }), streak: streakFor(user.id, serverDay()) });
+    await db.prepare('UPDATE users SET verified = 1 WHERE id = ?').run(user.id);
+    await db.prepare('DELETE FROM otps WHERE email = ?').run(email);
+    await issueSession(req, res, user);
+    return res.json({ user: publicUser({ ...user, verified: 1 }), streak: await streakFor(user.id, serverDay()) });
   });
 
   app.post('/api/auth/resend', async (req, res) => {
@@ -312,19 +312,19 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
       return res.status(429).json({ error: `Too many attempts. Try again in ${limited.retryAfter}s.`, retryAfter: limited.retryAfter });
     }
 
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+    const user = await db.prepare('SELECT * FROM users WHERE email = ?').get(email);
     if (!user || user.verified) {
       return res.status(400).json({ error: 'There is no pending sign-up for that email.', code: 'no-pending' });
     }
 
-    const pending = db.prepare('SELECT sent_at FROM otps WHERE email = ?').get(email);
+    const pending = await db.prepare('SELECT sent_at FROM otps WHERE email = ?').get(email);
     if (pending && Date.now() - pending.sent_at < OTP_RESEND_COOLDOWN_MS) {
       const wait = Math.ceil((OTP_RESEND_COOLDOWN_MS - (Date.now() - pending.sent_at)) / 1000);
       return res.status(429).json({ error: `A code was just sent. Wait ${wait}s.`, retryAfter: wait });
     }
 
     const code = newOtp();
-    db.prepare(
+    await db.prepare(
       'INSERT INTO otps (email, code_hash, expires_at, attempts, sent_at) VALUES (?, ?, ?, 0, ?) ' +
         'ON CONFLICT(email) DO UPDATE SET code_hash = excluded.code_hash, expires_at = excluded.expires_at, attempts = 0, sent_at = excluded.sent_at',
     ).run(email, hashOtp(email, code, secret), Date.now() + OTP_TTL_MS, Date.now());
@@ -343,7 +343,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
     });
   });
 
-  app.post('/api/auth/login', (req, res) => {
+  app.post('/api/auth/login', async (req, res) => {
     const email = normaliseEmail(req.body?.email);
     const password = String(req.body?.password ?? '');
     if (!EMAIL_RE.test(email) || !password) {
@@ -355,7 +355,7 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
       return res.status(429).json({ error: `Too many attempts. Try again in ${limited.retryAfter}s.`, retryAfter: limited.retryAfter });
     }
 
-    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+    const user = await db.prepare('SELECT * FROM users WHERE email = ?').get(email);
     // Same work on both branches so a missing account is not measurable.
     const stored = user?.password_hash ?? 'scrypt$16384$8$1$AAAAAAAAAAAAAAAAAAAAAA==$AAAA';
     const valid = checkPassword(password, stored);
@@ -366,38 +366,38 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
       return res.status(403).json({ error: 'Verify your email before signing in.', code: 'unverified', email });
     }
 
-    issueSession(req, res, user);
-    return res.json({ user: publicUser(user), streak: streakFor(user.id, serverDay()) });
+    await issueSession(req, res, user);
+    return res.json({ user: publicUser(user), streak: await streakFor(user.id, serverDay()) });
   });
 
-  app.post('/api/auth/logout', (req, res) => {
+  app.post('/api/auth/logout', async (req, res) => {
     const claim = verifyToken(parseCookies(req.get('cookie'))[SESSION_COOKIE], secret);
-    if (claim) db.prepare('DELETE FROM sessions WHERE jti = ?').run(claim.jti);
+    if (claim) await db.prepare('DELETE FROM sessions WHERE jti = ?').run(claim.jti);
     res.setHeader('Set-Cookie', clearedSessionCookie(cookieShape(req)));
     return res.json({ ok: true });
   });
 
-  app.get('/api/auth/me', (req, res) => {
-    const user = sessionUser(req);
+  app.get('/api/auth/me', async (req, res) => {
+    const user = await sessionUser(req);
     if (!user) return res.status(401).json({ error: 'Not signed in.' });
-    return res.json({ user: publicUser(user), streak: streakFor(user.id, serverDay()) });
+    return res.json({ user: publicUser(user), streak: await streakFor(user.id, serverDay()) });
   });
 
   // Signs out every session for the account, not just this browser.
-  app.post('/api/auth/sign-out-everywhere', requireAuth, (req, res) => {
-    const removed = db.prepare('DELETE FROM sessions WHERE user_id = ?').run(req.user.id);
+  app.post('/api/auth/sign-out-everywhere', requireAuth, async (req, res) => {
+    const removed = await db.prepare('DELETE FROM sessions WHERE user_id = ?').run(req.user.id);
     res.setHeader('Set-Cookie', clearedSessionCookie(cookieShape(req)));
     return res.json({ ok: true, signedOut: Number(removed.changes ?? 0) });
   });
 
   /* -------------------------------------------------------------- progress -- */
 
-  app.get('/api/progress', requireAuth, (req, res) => {
-    const row = db.prepare('SELECT * FROM progress WHERE user_id = ?').get(req.user.id);
+  app.get('/api/progress', requireAuth, async (req, res) => {
+    const row = await db.prepare('SELECT * FROM progress WHERE user_id = ?').get(req.user.id);
     const today = serverDay();
-    const activity = activityFor(req.user.id);
+    const activity = await activityFor(req.user.id);
     if (!row) {
-      return res.json({ planStart: null, entries: {}, activity, updatedAt: null, streak: streakFor(req.user.id, today) });
+      return res.json({ planStart: null, entries: {}, activity, updatedAt: null, streak: await streakFor(req.user.id, today) });
     }
     let entries = {};
     try {
@@ -410,11 +410,11 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
       entries,
       activity,
       updatedAt: row.updated_at,
-      streak: streakFor(req.user.id, today),
+      streak: await streakFor(req.user.id, today),
     });
   });
 
-  app.put('/api/progress', requireAuth, (req, res) => {
+  app.put('/api/progress', requireAuth, async (req, res) => {
     const limited = writeLimiter(`progress:${req.user.id}`);
     if (!limited.ok) {
       return res.status(429).json({ error: 'Saving too quickly. Give it a second.', retryAfter: limited.retryAfter });
@@ -425,35 +425,39 @@ export function createApp({ db, secret, mailer, appOrigin = 'http://localhost:30
 
     const { solved, mastered } = summarise(value.entries);
     const updatedAt = new Date().toISOString();
-    db.prepare(
-      'INSERT INTO progress (user_id, plan_start, entries_json, solved, mastered, updated_at) VALUES (?, ?, ?, ?, ?, ?) ' +
-        'ON CONFLICT(user_id) DO UPDATE SET plan_start = excluded.plan_start, entries_json = excluded.entries_json, ' +
-        'solved = excluded.solved, mastered = excluded.mastered, updated_at = excluded.updated_at',
-    ).run(req.user.id, value.planStart, JSON.stringify(value.entries), solved, mastered, updatedAt);
-
-    const upsertDay = db.prepare(
+    // One batch: a single round trip to the database, all or nothing.
+    const writes = [
+      {
+        sql:
+          'INSERT INTO progress (user_id, plan_start, entries_json, solved, mastered, updated_at) VALUES (?, ?, ?, ?, ?, ?) ' +
+          'ON CONFLICT(user_id) DO UPDATE SET plan_start = excluded.plan_start, entries_json = excluded.entries_json, ' +
+          'solved = excluded.solved, mastered = excluded.mastered, updated_at = excluded.updated_at',
+        args: [req.user.id, value.planStart, JSON.stringify(value.entries), solved, mastered, updatedAt],
+      },
+    ];
+    const upsertDaySql =
       'INSERT INTO activity (user_id, day, count) VALUES (?, ?, ?) ' +
-        'ON CONFLICT(user_id, day) DO UPDATE SET count = MAX(count, excluded.count)',
-    );
+      'ON CONFLICT(user_id, day) DO UPDATE SET count = MAX(count, excluded.count)';
     for (const [day, count] of Object.entries(value.activity)) {
-      if (isIsoDay(day)) upsertDay.run(req.user.id, day, count);
+      if (isIsoDay(day)) writes.push({ sql: upsertDaySql, args: [req.user.id, day, count] });
     }
+    await db.batch(writes);
 
-    return res.json({ saved: true, updatedAt, solved, mastered, streak: streakFor(req.user.id, serverDay()) });
+    return res.json({ saved: true, updatedAt, solved, mastered, streak: await streakFor(req.user.id, serverDay()) });
   });
 
   /* ----------------------------------------------------------- leaderboard -- */
 
-  app.get('/api/leaderboard', requireAuth, (req, res) => {
+  app.get('/api/leaderboard', requireAuth, async (req, res) => {
     const today = isIsoDay(req.query.today) && isRecentDay(req.query.today) ? req.query.today : serverDay();
 
-    const users = db
+    const users = await db
       .prepare(
         'SELECT u.id, u.name, p.solved, p.mastered FROM users u ' +
           'LEFT JOIN progress p ON p.user_id = u.id WHERE u.verified = 1',
       )
       .all();
-    const activityRows = db.prepare('SELECT user_id, day FROM activity').all();
+    const activityRows = await db.prepare('SELECT user_id, day FROM activity').all();
     const byUser = new Map();
     for (const row of activityRows) {
       if (!byUser.has(row.user_id)) byUser.set(row.user_id, []);
