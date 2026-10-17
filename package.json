@@ -1,0 +1,18 @@
+{
+  "name": "neetcode-150-tracker",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A twelve-week NeetCode 150 tracker with re-solve scheduling, streaks, a study pet and accounts.",
+  "scripts": {
+    "setup": "npm --prefix backend install && npm --prefix frontend install",
+    "dev": "node scripts/dev.mjs",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix backend start",
+    "typecheck": "npm --prefix frontend run typecheck",
+    "test": "npm --prefix backend test && npm --prefix frontend run verify",
+    "gen-data": "npm --prefix frontend run gen-data"
+  }
+}

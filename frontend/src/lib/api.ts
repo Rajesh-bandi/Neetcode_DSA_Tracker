@@ -1,0 +1,127 @@
+import type { Entry } from './state';
+
+export type PublicUser = {
+  id: string;
+  name: string;
+  email: string;
+  createdAt: string;
+  verified: boolean;
+};
+
+export type StreakInfo = {
+  current: number;
+  longest: number;
+  activeToday: boolean;
+  totalDays: number;
+};
+
+export type RemoteProgress = {
+  planStart: string | null;
+  entries: Record<string, Entry>;
+  activity: Record<string, number>;
+  updatedAt: string | null;
+};
+
+export type LeaderRow = {
+  rank: number;
+  id: string;
+  name: string;
+  initials: string;
+  solved: number;
+  mastered: number;
+  currentStreak: number;
+  longestStreak: number;
+  activeDays: number;
+  activeToday: boolean;
+  isYou: boolean;
+};
+
+export class ApiFailure extends Error {
+  status: number;
+  code?: string;
+  field?: string;
+  retryAfter?: number;
+
+  constructor(message: string, init: { status: number; code?: string; field?: string; retryAfter?: number }) {
+    super(message);
+    this.name = 'ApiFailure';
+    this.status = init.status;
+    this.code = init.code;
+    this.field = init.field;
+    this.retryAfter = init.retryAfter;
+  }
+}
+
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  let response: Response;
+  try {
+    response = await fetch(path, {
+      credentials: 'same-origin',
+      headers: init.body ? { 'content-type': 'application/json' } : undefined,
+      ...init,
+    });
+  } catch {
+    throw new ApiFailure('The API is not reachable. Progress still saves on this device.', { status: 0 });
+  }
+
+  let data: unknown = null;
+  const type = response.headers.get('content-type') ?? '';
+  if (type.includes('application/json')) {
+    data = await response.json().catch(() => null);
+  }
+
+  if (!response.ok) {
+    const body = (data ?? {}) as { error?: string; code?: string; field?: string; retryAfter?: number };
+    throw new ApiFailure(body.error ?? `Request failed (${response.status}).`, {
+      status: response.status,
+      code: body.code,
+      field: body.field,
+      retryAfter: body.retryAfter,
+    });
+  }
+
+  return data as T;
+}
+
+const post = <T>(path: string, body?: unknown) =>
+  request<T>(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) });
+
+export const api = {
+  async me() {
+    try {
+      return await request<{ user: PublicUser; streak: StreakInfo }>('/api/auth/me');
+    } catch (error) {
+      if (error instanceof ApiFailure && error.status === 401) return null;
+      throw error;
+    }
+  },
+
+  register: (email: string, password: string, name: string) =>
+    post<{ verificationRequired: true; email: string; delivery: 'console' | 'smtp'; devCode?: string }>(
+      '/api/auth/register',
+      { email, password, name },
+    ),
+
+  verify: (email: string, code: string) => post<{ user: PublicUser; streak: StreakInfo }>('/api/auth/verify', { email, code }),
+
+  resend: (email: string) => post<{ sent: true; delivery: 'console' | 'smtp'; devCode?: string }>('/api/auth/resend', { email }),
+
+  login: (email: string, password: string) => post<{ user: PublicUser; streak: StreakInfo }>('/api/auth/login', { email, password }),
+
+  logout: () => post<{ ok: true }>('/api/auth/logout'),
+
+  logoutEverywhere: () => post<{ ok: true; signedOut: number }>('/api/auth/sign-out-everywhere'),
+
+  getProgress: () => request<RemoteProgress & { streak: StreakInfo }>('/api/progress'),
+
+  putProgress: (payload: { planStart: string; entries: Record<string, Entry>; activity: Record<string, number> }) =>
+    request<{ saved: true; updatedAt: string; solved: number; mastered: number; streak: StreakInfo }>('/api/progress', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+
+  leaderboard: (today: string) =>
+    request<{ today: string; total: number; entries: LeaderRow[]; you: LeaderRow | null }>(
+      `/api/leaderboard?today=${encodeURIComponent(today)}`,
+    ),
+};

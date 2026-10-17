@@ -1,0 +1,533 @@
+======================================================================
+SHEET: Start Here   (xl/worksheets/sheet1.xml)
+======================================================================
+,DSA in 12 Weeks: NeetCode 150 Re-Solve Tracker,,,,,,,
+,By Nihar (@niihaaarrrr). Problem list: NeetCode 150 by NeetCode (neetcode.io). Arranged into 12 weeks for this video.,,,,,,,
+,"First, make your own copy",,,,,,,
+,Google Sheets: File > Make a copy. Excel: download and save it. Only edit your copy.,,,,,,,
+,The rule this sheet is built on,,,,,,,
+,"Solving a problem once is not learning it. A problem is yours only when you can solve it again on Day 30, on a blank page, without looking.",,,,,,,
+,The 6-step loop (do this for every problem),,,,,,,
+,"1. Set a 20-minute timer. Close the solution tab. Write whatever idea comes first, even brute force.",,,,,,,
+,"2. Stuck after 20 minutes? Read the idea only (or watch the solution video), not the code. Close it and write the code yourself.",,,,,,,
+,"3. Write Time and Space complexity at the top of your code. Every problem, every time.",,,,,,,
+,"4. After Accepted, open the Discuss / Solutions tab. Find a second approach and compare the two.",,,,,,,
+,"5. Name the pattern and write a one-line trigger: when you see X in a question, think Y.",,,,,,,
+,"6. Record yourself explaining it in 2 minutes. Then re-solve it on Day 3, Day 7 and Day 30. Day 30 on paper, no compiler.",,,,,,,
+,How to fill the Tracker tab,,,,,,,
+,Yellow columns are yours to fill. Everything else fills itself.,,,,,,,
+,"Day 1 date: the date you first solve it. Day 3, Day 7 and Day 30 due dates appear automatically.",,,,,,,
+,"Time / Space, Pattern, Trigger line: write these yourself. Writing them is the learning.",,,,,,,
+,Day 3 / Day 7 / Day 30: pick Done or Redo from the dropdown on that day.,,,,,,,
+,"Redo means you could not re-solve it. Change the Day 1 date to today and clear the Day 3, Day 7 and Day 30 boxes. The calendar restarts.",,,,,,,
+,"Status tells you what to do: Re-solve due (do it today), In progress, Redo, or Mastered (Day 30 done).",,,,,,,
+,Premium problems have a free version link in the Free link column.,,,,,,,
+,Example row (filled correctly),,,,,,,
+,Problem,Day 1 date,Time / Space,Pattern,Trigger line,Day 3,Day 7,Day 30
+,Sort Colors (LC 75),01-Nov-2026,"O(n) time, O(1) space, one pass","Two pointers, partition","Only 2 or 3 kinds of values, arrange in place: use pointers",Done,Done,Done
+,Daily routine (2 to 3 hours),,,,,,,
+,1 to 2 new problems with the full 6-step loop.,,,,,,,
+,30 minutes: every re-solve marked Re-solve due on the Tracker (filter the Status column).,,,,,,,
+,"30 minutes: core CS (OS, DBMS, SQL, OOP). From week 1, not after DSA.",,,,,,,
+,The 12 weeks,,,,,,,
+,Week 1: Arrays & Hashing + Two Pointers  (14 problems),,,,,,,
+,Week 2: Sliding Window + Stack  (13 problems),,,,,,,
+,Week 3: Binary Search + Intervals  (13 problems),,,,,,,
+,Week 4: Linked List  (11 problems),,,,,,,
+,Week 5: Trees  (15 problems),,,,,,,
+,Week 6: Heaps + Greedy  (15 problems),,,,,,,
+,Week 7: Backtracking + Tries  (12 problems),,,,,,,
+,Week 8: Graphs  (13 problems),,,,,,,
+,Week 9: Advanced Graphs + Math & Geometry  (14 problems),,,,,,,
+,Week 10: 1-D Dynamic Programming  (12 problems),,,,,,,
+,Week 11: 2-D Dynamic Programming  (11 problems),,,,,,,
+,Week 12: Bit Manipulation + Full Revision  (7 problems),,,,,,,
+,Week 12 has fewer new problems on purpose. Use the extra time to re-solve every problem not yet marked Mastered.,,,,,,,
+
+======================================================================
+SHEET: Progress   (xl/worksheets/sheet2.xml)
+======================================================================
+Your progress,,,,,,,,
+Updates automatically from the Tracker tab. Mastered means the Day 30 re-solve is marked Done.,,,,,,,,
+Week,Topic,Problems,Started,Mastered (Day 30 done),% mastered,Easy,Medium,Hard
+1,Arrays & Hashing + Two Pointers,14,0,0,0,4,9,1
+2,Sliding Window + Stack,13,0,0,0,2,8,3
+3,Binary Search + Intervals,13,0,0,0,2,9,2
+4,Linked List,11,0,0,0,3,6,2
+5,Trees,15,0,0,0,6,7,2
+6,Heaps + Greedy,15,0,0,0,2,12,1
+7,Backtracking + Tries,12,0,0,0,0,10,2
+8,Graphs,13,0,0,0,0,12,1
+9,Advanced Graphs + Math & Geometry,14,0,0,0,2,9,3
+10,1-D Dynamic Programming,12,0,0,0,2,10,0
+11,2-D Dynamic Programming,11,0,0,0,0,7,4
+12,Bit Manipulation + Full Revision,7,0,0,0,5,2,0
+,Total,150,0,0,0,28,101,21
+,Re-solves due today,0,,,,,,
+,Marked Redo (restart these),0,,,,,,
+
+======================================================================
+SHEET: Tracker   (xl/worksheets/sheet3.xml)
+======================================================================
+Week,Topic,#,Problem (opens LeetCode),Difficulty,Free link (premium only),Solution video (only after 20 min),Day 1 date,Time / Space,Pattern,Trigger line,Day 3 due,Day 3,Day 7 due,Day 7,Day 30 due,Day 30,Next re-solve,Status
+1,Arrays & Hashing,217,Contains Duplicate,Easy,,Watch,,,,,,,,,,,,Not started
+1,Arrays & Hashing,242,Valid Anagram,Easy,,Watch,,,,,,,,,,,,Not started
+1,Arrays & Hashing,1,Two Sum,Easy,,Watch,,,,,,,,,,,,Not started
+1,Arrays & Hashing,49,Group Anagrams,Medium,,Watch,,,,,,,,,,,,Not started
+1,Arrays & Hashing,347,Top K Frequent Elements,Medium,,Watch,,,,,,,,,,,,Not started
+1,Arrays & Hashing,238,Product of Array Except Self,Medium,,Watch,,,,,,,,,,,,Not started
+1,Arrays & Hashing,36,Valid Sudoku,Medium,,Watch,,,,,,,,,,,,Not started
+1,Arrays & Hashing,271,Encode and Decode Strings,Medium,Free version,Watch,,,,,,,,,,,,Not started
+1,Arrays & Hashing,128,Longest Consecutive Sequence,Medium,,Watch,,,,,,,,,,,,Not started
+1,Two Pointers,125,Valid Palindrome,Easy,,Watch,,,,,,,,,,,,Not started
+1,Two Pointers,167,Two Sum II (Input Array Is Sorted),Medium,,Watch,,,,,,,,,,,,Not started
+1,Two Pointers,15,3Sum,Medium,,Watch,,,,,,,,,,,,Not started
+1,Two Pointers,11,Container With Most Water,Medium,,Watch,,,,,,,,,,,,Not started
+1,Two Pointers,42,Trapping Rain Water,Hard,,Watch,,,,,,,,,,,,Not started
+2,Sliding Window,121,Best Time to Buy And Sell Stock,Easy,,Watch,,,,,,,,,,,,Not started
+2,Sliding Window,3,Longest Substring Without Repeating Characters,Medium,,Watch,,,,,,,,,,,,Not started
+2,Sliding Window,424,Longest Repeating Character Replacement,Medium,,Watch,,,,,,,,,,,,Not started
+2,Sliding Window,567,Permutation In String,Medium,,Watch,,,,,,,,,,,,Not started
+2,Sliding Window,76,Minimum Window Substring,Hard,,Watch,,,,,,,,,,,,Not started
+2,Sliding Window,239,Sliding Window Maximum,Hard,,Watch,,,,,,,,,,,,Not started
+2,Stack,20,Valid Parentheses,Easy,,Watch,,,,,,,,,,,,Not started
+2,Stack,155,Min Stack,Medium,,Watch,,,,,,,,,,,,Not started
+2,Stack,150,Evaluate Reverse Polish Notation,Medium,,Watch,,,,,,,,,,,,Not started
+2,Stack,22,Generate Parentheses,Medium,,Watch,,,,,,,,,,,,Not started
+2,Stack,739,Daily Temperatures,Medium,,Watch,,,,,,,,,,,,Not started
+2,Stack,853,Car Fleet,Medium,,Watch,,,,,,,,,,,,Not started
+2,Stack,84,Largest Rectangle In Histogram,Hard,,Watch,,,,,,,,,,,,Not started
+3,Binary Search,704,Binary Search,Easy,,Watch,,,,,,,,,,,,Not started
+3,Binary Search,74,Search a 2D Matrix,Medium,,Watch,,,,,,,,,,,,Not started
+3,Binary Search,875,Koko Eating Bananas,Medium,,Watch,,,,,,,,,,,,Not started
+3,Binary Search,153,Find Minimum In Rotated Sorted Array,Medium,,Watch,,,,,,,,,,,,Not started
+3,Binary Search,33,Search In Rotated Sorted Array,Medium,,Watch,,,,,,,,,,,,Not started
+3,Binary Search,981,Time Based Key-Value Store,Medium,,Watch,,,,,,,,,,,,Not started
+3,Binary Search,4,Median of Two Sorted Arrays,Hard,,Watch,,,,,,,,,,,,Not started
+3,Intervals,252,Meeting Rooms,Easy,Free version,Watch,,,,,,,,,,,,Not started
+3,Intervals,57,Insert Interval,Medium,,Watch,,,,,,,,,,,,Not started
+3,Intervals,56,Merge Intervals,Medium,,Watch,,,,,,,,,,,,Not started
+3,Intervals,435,Non-overlapping Intervals,Medium,,Watch,,,,,,,,,,,,Not started
+3,Intervals,253,Meeting Rooms II,Medium,Free version,Watch,,,,,,,,,,,,Not started
+3,Intervals,1851,Minimum Interval to Include Each Query,Hard,,Watch,,,,,,,,,,,,Not started
+4,Linked List,206,Reverse Linked List,Easy,,Watch,,,,,,,,,,,,Not started
+4,Linked List,21,Merge Two Sorted Lists,Easy,,Watch,,,,,,,,,,,,Not started
+4,Linked List,141,Linked List Cycle,Easy,,Watch,,,,,,,,,,,,Not started
+4,Linked List,143,Reorder List,Medium,,Watch,,,,,,,,,,,,Not started
+4,Linked List,19,Remove Nth Node From End of List,Medium,,Watch,,,,,,,,,,,,Not started
+4,Linked List,138,Copy List With Random Pointer,Medium,,Watch,,,,,,,,,,,,Not started
+4,Linked List,2,Add Two Numbers,Medium,,Watch,,,,,,,,,,,,Not started
+4,Linked List,287,Find The Duplicate Number,Medium,,Watch,,,,,,,,,,,,Not started
+4,Linked List,146,LRU Cache,Medium,,Watch,,,,,,,,,,,,Not started
+4,Linked List,23,Merge k Sorted Lists,Hard,,Watch,,,,,,,,,,,,Not started
+4,Linked List,25,Reverse Nodes in k-Group,Hard,,Watch,,,,,,,,,,,,Not started
+5,Trees,226,Invert Binary Tree,Easy,,Watch,,,,,,,,,,,,Not started
+5,Trees,104,Maximum Depth of Binary Tree,Easy,,Watch,,,,,,,,,,,,Not started
+5,Trees,543,Diameter of Binary Tree,Easy,,Watch,,,,,,,,,,,,Not started
+5,Trees,110,Balanced Binary Tree,Easy,,Watch,,,,,,,,,,,,Not started
+5,Trees,100,Same Tree,Easy,,Watch,,,,,,,,,,,,Not started
+5,Trees,572,Subtree of Another Tree,Easy,,Watch,,,,,,,,,,,,Not started
+5,Trees,235,Lowest Common Ancestor of a Binary Search Tree,Medium,,Watch,,,,,,,,,,,,Not started
+5,Trees,102,Binary Tree Level Order Traversal,Medium,,Watch,,,,,,,,,,,,Not started
+5,Trees,199,Binary Tree Right Side View,Medium,,Watch,,,,,,,,,,,,Not started
+5,Trees,1448,Count Good Nodes In Binary Tree,Medium,,Watch,,,,,,,,,,,,Not started
+5,Trees,98,Validate Binary Search Tree,Medium,,Watch,,,,,,,,,,,,Not started
+5,Trees,230,Kth Smallest Element in a BST,Medium,,Watch,,,,,,,,,,,,Not started
+5,Trees,105,Construct Binary Tree From Preorder And Inorder Traversal,Medium,,Watch,,,,,,,,,,,,Not started
+5,Trees,124,Binary Tree Maximum Path Sum,Hard,,Watch,,,,,,,,,,,,Not started
+5,Trees,297,Serialize And Deserialize Binary Tree,Hard,,Watch,,,,,,,,,,,,Not started
+6,Heap / Priority Queue,703,Kth Largest Element In a Stream,Easy,,Watch,,,,,,,,,,,,Not started
+6,Heap / Priority Queue,1046,Last Stone Weight,Easy,,Watch,,,,,,,,,,,,Not started
+6,Heap / Priority Queue,973,K Closest Points to Origin,Medium,,Watch,,,,,,,,,,,,Not started
+6,Heap / Priority Queue,215,Kth Largest Element In An Array,Medium,,Watch,,,,,,,,,,,,Not started
+6,Heap / Priority Queue,621,Task Scheduler,Medium,,Watch,,,,,,,,,,,,Not started
+6,Heap / Priority Queue,355,Design Twitter,Medium,,Watch,,,,,,,,,,,,Not started
+6,Heap / Priority Queue,295,Find Median From Data Stream,Hard,,Watch,,,,,,,,,,,,Not started
+6,Greedy,53,Maximum Subarray,Medium,,Watch,,,,,,,,,,,,Not started
+6,Greedy,55,Jump Game,Medium,,Watch,,,,,,,,,,,,Not started
+6,Greedy,45,Jump Game II,Medium,,Watch,,,,,,,,,,,,Not started
+6,Greedy,134,Gas Station,Medium,,Watch,,,,,,,,,,,,Not started
+6,Greedy,846,Hand of Straights,Medium,,Watch,,,,,,,,,,,,Not started
+6,Greedy,1899,Merge Triplets to Form Target Triplet,Medium,,Watch,,,,,,,,,,,,Not started
+6,Greedy,763,Partition Labels,Medium,,Watch,,,,,,,,,,,,Not started
+6,Greedy,678,Valid Parenthesis String,Medium,,Watch,,,,,,,,,,,,Not started
+7,Backtracking,78,Subsets,Medium,,Watch,,,,,,,,,,,,Not started
+7,Backtracking,39,Combination Sum,Medium,,Watch,,,,,,,,,,,,Not started
+7,Backtracking,46,Permutations,Medium,,Watch,,,,,,,,,,,,Not started
+7,Backtracking,90,Subsets II,Medium,,Watch,,,,,,,,,,,,Not started
+7,Backtracking,40,Combination Sum II,Medium,,Watch,,,,,,,,,,,,Not started
+7,Backtracking,79,Word Search,Medium,,Watch,,,,,,,,,,,,Not started
+7,Backtracking,131,Palindrome Partitioning,Medium,,Watch,,,,,,,,,,,,Not started
+7,Backtracking,17,Letter Combinations of a Phone Number,Medium,,Watch,,,,,,,,,,,,Not started
+7,Backtracking,51,N-Queens,Hard,,Watch,,,,,,,,,,,,Not started
+7,Tries,208,Implement Trie (Prefix Tree),Medium,,Watch,,,,,,,,,,,,Not started
+7,Tries,211,Design Add And Search Words Data Structure,Medium,,Watch,,,,,,,,,,,,Not started
+7,Tries,212,Word Search II,Hard,,Watch,,,,,,,,,,,,Not started
+8,Graphs,200,Number of Islands,Medium,,Watch,,,,,,,,,,,,Not started
+8,Graphs,133,Clone Graph,Medium,,Watch,,,,,,,,,,,,Not started
+8,Graphs,695,Max Area of Island,Medium,,Watch,,,,,,,,,,,,Not started
+8,Graphs,417,Pacific Atlantic Water Flow,Medium,,Watch,,,,,,,,,,,,Not started
+8,Graphs,130,Surrounded Regions,Medium,,Watch,,,,,,,,,,,,Not started
+8,Graphs,994,Rotting Oranges,Medium,,Watch,,,,,,,,,,,,Not started
+8,Graphs,286,Walls And Gates,Medium,Free version,Watch,,,,,,,,,,,,Not started
+8,Graphs,207,Course Schedule,Medium,,Watch,,,,,,,,,,,,Not started
+8,Graphs,210,Course Schedule II,Medium,,Watch,,,,,,,,,,,,Not started
+8,Graphs,684,Redundant Connection,Medium,,Watch,,,,,,,,,,,,Not started
+8,Graphs,323,Number of Connected Components In An Undirected Graph,Medium,Free version,Watch,,,,,,,,,,,,Not started
+8,Graphs,261,Graph Valid Tree,Medium,Free version,Watch,,,,,,,,,,,,Not started
+8,Graphs,127,Word Ladder,Hard,,Watch,,,,,,,,,,,,Not started
+9,Advanced Graphs,1584,Min Cost to Connect All Points,Medium,,Watch,,,,,,,,,,,,Not started
+9,Advanced Graphs,743,Network Delay Time,Medium,,Watch,,,,,,,,,,,,Not started
+9,Advanced Graphs,787,Cheapest Flights Within K Stops,Medium,,Watch,,,,,,,,,,,,Not started
+9,Advanced Graphs,332,Reconstruct Itinerary,Hard,,Watch,,,,,,,,,,,,Not started
+9,Advanced Graphs,778,Swim In Rising Water,Hard,,Watch,,,,,,,,,,,,Not started
+9,Advanced Graphs,269,Alien Dictionary,Hard,Free version,Watch,,,,,,,,,,,,Not started
+9,Math & Geometry,202,Happy Number,Easy,,Watch,,,,,,,,,,,,Not started
+9,Math & Geometry,66,Plus One,Easy,,Watch,,,,,,,,,,,,Not started
+9,Math & Geometry,48,Rotate Image,Medium,,Watch,,,,,,,,,,,,Not started
+9,Math & Geometry,54,Spiral Matrix,Medium,,Watch,,,,,,,,,,,,Not started
+9,Math & Geometry,73,Set Matrix Zeroes,Medium,,Watch,,,,,,,,,,,,Not started
+9,Math & Geometry,50,"Pow(x, n)",Medium,,Watch,,,,,,,,,,,,Not started
+9,Math & Geometry,43,Multiply Strings,Medium,,Watch,,,,,,,,,,,,Not started
+9,Math & Geometry,2013,Detect Squares,Medium,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,70,Climbing Stairs,Easy,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,746,Min Cost Climbing Stairs,Easy,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,198,House Robber,Medium,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,213,House Robber II,Medium,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,5,Longest Palindromic Substring,Medium,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,647,Palindromic Substrings,Medium,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,91,Decode Ways,Medium,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,322,Coin Change,Medium,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,152,Maximum Product Subarray,Medium,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,139,Word Break,Medium,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,300,Longest Increasing Subsequence,Medium,,Watch,,,,,,,,,,,,Not started
+10,1-D Dynamic Programming,416,Partition Equal Subset Sum,Medium,,Watch,,,,,,,,,,,,Not started
+11,2-D Dynamic Programming,62,Unique Paths,Medium,,Watch,,,,,,,,,,,,Not started
+11,2-D Dynamic Programming,1143,Longest Common Subsequence,Medium,,Watch,,,,,,,,,,,,Not started
+11,2-D Dynamic Programming,309,Best Time to Buy And Sell Stock With Cooldown,Medium,,Watch,,,,,,,,,,,,Not started
+11,2-D Dynamic Programming,518,Coin Change II,Medium,,Watch,,,,,,,,,,,,Not started
+11,2-D Dynamic Programming,494,Target Sum,Medium,,Watch,,,,,,,,,,,,Not started
+11,2-D Dynamic Programming,97,Interleaving String,Medium,,Watch,,,,,,,,,,,,Not started
+11,2-D Dynamic Programming,72,Edit Distance,Medium,,Watch,,,,,,,,,,,,Not started
+11,2-D Dynamic Programming,329,Longest Increasing Path In a Matrix,Hard,,Watch,,,,,,,,,,,,Not started
+11,2-D Dynamic Programming,115,Distinct Subsequences,Hard,,Watch,,,,,,,,,,,,Not started
+11,2-D Dynamic Programming,312,Burst Balloons,Hard,,Watch,,,,,,,,,,,,Not started
+11,2-D Dynamic Programming,10,Regular Expression Matching,Hard,,Watch,,,,,,,,,,,,Not started
+12,Bit Manipulation,136,Single Number,Easy,,Watch,,,,,,,,,,,,Not started
+12,Bit Manipulation,191,Number of 1 Bits,Easy,,Watch,,,,,,,,,,,,Not started
+12,Bit Manipulation,338,Counting Bits,Easy,,Watch,,,,,,,,,,,,Not started
+12,Bit Manipulation,190,Reverse Bits,Easy,,Watch,,,,,,,,,,,,Not started
+12,Bit Manipulation,268,Missing Number,Easy,,Watch,,,,,,,,,,,,Not started
+12,Bit Manipulation,371,Sum of Two Integers,Medium,,Watch,,,,,,,,,,,,Not started
+12,Bit Manipulation,7,Reverse Integer,Medium,,Watch,,,,,,,,,,,,Not started
+
+--- hyperlinks in 'Tracker' (307) ---
+cell,column_header,cell_text,url
+D2,Problem (opens LeetCode),Contains Duplicate,https://leetcode.com/problems/contains-duplicate/
+G2,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=3OamzN90kPg
+D3,Problem (opens LeetCode),Valid Anagram,https://leetcode.com/problems/valid-anagram/
+G3,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=9UtInBqnCgA
+D4,Problem (opens LeetCode),Two Sum,https://leetcode.com/problems/two-sum/
+G4,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=KLlXCFG5TnA
+D5,Problem (opens LeetCode),Group Anagrams,https://leetcode.com/problems/group-anagrams/
+G5,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=vzdNOK2oB2E
+D6,Problem (opens LeetCode),Top K Frequent Elements,https://leetcode.com/problems/top-k-frequent-elements/
+G6,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=YPTqKIgVk-k
+D7,Problem (opens LeetCode),Product of Array Except Self,https://leetcode.com/problems/product-of-array-except-self/
+G7,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=bNvIQI2wAjk
+D8,Problem (opens LeetCode),Valid Sudoku,https://leetcode.com/problems/valid-sudoku/
+G8,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=TjFXEUCMqI8
+D9,Problem (opens LeetCode),Encode and Decode Strings,https://leetcode.com/problems/encode-and-decode-strings/
+F9,Free link (premium only),Free version,https://www.lintcode.com/problem/659/
+G9,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=B1k_sxOSgv8
+D10,Problem (opens LeetCode),Longest Consecutive Sequence,https://leetcode.com/problems/longest-consecutive-sequence/
+G10,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=P6RZZMu_maU
+D11,Problem (opens LeetCode),Valid Palindrome,https://leetcode.com/problems/valid-palindrome/
+G11,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=jJXJ16kPFWg
+D12,Problem (opens LeetCode),Two Sum II (Input Array Is Sorted),https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/
+G12,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=cQ1Oz4ckceM
+D13,Problem (opens LeetCode),3Sum,https://leetcode.com/problems/3sum/
+G13,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=jzZsG8n2R9A
+D14,Problem (opens LeetCode),Container With Most Water,https://leetcode.com/problems/container-with-most-water/
+G14,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=UuiTKBwPgAo
+D15,Problem (opens LeetCode),Trapping Rain Water,https://leetcode.com/problems/trapping-rain-water/
+G15,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=ZI2z5pq0TqA
+D16,Problem (opens LeetCode),Best Time to Buy And Sell Stock,https://leetcode.com/problems/best-time-to-buy-and-sell-stock/
+G16,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=1pkOgXD63yU
+D17,Problem (opens LeetCode),Longest Substring Without Repeating Characters,https://leetcode.com/problems/longest-substring-without-repeating-characters/
+G17,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=wiGpQwVHdE0
+D18,Problem (opens LeetCode),Longest Repeating Character Replacement,https://leetcode.com/problems/longest-repeating-character-replacement/
+G18,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=gqXU1UyA8pk
+D19,Problem (opens LeetCode),Permutation In String,https://leetcode.com/problems/permutation-in-string/
+G19,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=UbyhOgBN834
+D20,Problem (opens LeetCode),Minimum Window Substring,https://leetcode.com/problems/minimum-window-substring/
+G20,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=jSto0O4AJbM
+D21,Problem (opens LeetCode),Sliding Window Maximum,https://leetcode.com/problems/sliding-window-maximum/
+G21,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=DfljaUwZsOk
+D22,Problem (opens LeetCode),Valid Parentheses,https://leetcode.com/problems/valid-parentheses/
+G22,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=WTzjTskDFMg
+D23,Problem (opens LeetCode),Min Stack,https://leetcode.com/problems/min-stack/
+G23,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=qkLl7nAwDPo
+D24,Problem (opens LeetCode),Evaluate Reverse Polish Notation,https://leetcode.com/problems/evaluate-reverse-polish-notation/
+G24,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=iu0082c4HDE
+D25,Problem (opens LeetCode),Generate Parentheses,https://leetcode.com/problems/generate-parentheses/
+G25,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=s9fokUqJ76A
+D26,Problem (opens LeetCode),Daily Temperatures,https://leetcode.com/problems/daily-temperatures/
+G26,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=cTBiBSnjO3c
+D27,Problem (opens LeetCode),Car Fleet,https://leetcode.com/problems/car-fleet/
+G27,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=Pr6T-3yB9RM
+D28,Problem (opens LeetCode),Largest Rectangle In Histogram,https://leetcode.com/problems/largest-rectangle-in-histogram/
+G28,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=zx5Sw9130L0
+D29,Problem (opens LeetCode),Binary Search,https://leetcode.com/problems/binary-search/
+G29,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=s4DPM8ct1pI
+D30,Problem (opens LeetCode),Search a 2D Matrix,https://leetcode.com/problems/search-a-2d-matrix/
+G30,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=Ber2pi2C0j0
+D31,Problem (opens LeetCode),Koko Eating Bananas,https://leetcode.com/problems/koko-eating-bananas/
+G31,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=U2SozAs9RzA
+D32,Problem (opens LeetCode),Find Minimum In Rotated Sorted Array,https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/
+G32,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=nIVW4P8b1VA
+D33,Problem (opens LeetCode),Search In Rotated Sorted Array,https://leetcode.com/problems/search-in-rotated-sorted-array/
+G33,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=U8XENwh8Oy8
+D34,Problem (opens LeetCode),Time Based Key-Value Store,https://leetcode.com/problems/time-based-key-value-store/
+G34,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=fu2cD_6E8Hw
+D35,Problem (opens LeetCode),Median of Two Sorted Arrays,https://leetcode.com/problems/median-of-two-sorted-arrays/
+G35,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=q6IEA26hvXc
+D36,Problem (opens LeetCode),Meeting Rooms,https://leetcode.com/problems/meeting-rooms/
+F36,Free link (premium only),Free version,https://www.lintcode.com/problem/920/
+G36,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=PaJxqZVPhbg
+D37,Problem (opens LeetCode),Insert Interval,https://leetcode.com/problems/insert-interval/
+G37,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=A8NUOmlwOlM
+D38,Problem (opens LeetCode),Merge Intervals,https://leetcode.com/problems/merge-intervals/
+G38,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=44H3cEC2fFM
+D39,Problem (opens LeetCode),Non-overlapping Intervals,https://leetcode.com/problems/non-overlapping-intervals/
+G39,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=nONCGxWoUfM
+D40,Problem (opens LeetCode),Meeting Rooms II,https://leetcode.com/problems/meeting-rooms-ii/
+F40,Free link (premium only),Free version,https://www.lintcode.com/problem/919/
+G40,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=FdzJmTCVyJU
+D41,Problem (opens LeetCode),Minimum Interval to Include Each Query,https://leetcode.com/problems/minimum-interval-to-include-each-query/
+G41,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=5hQ5WWW5awQ
+D42,Problem (opens LeetCode),Reverse Linked List,https://leetcode.com/problems/reverse-linked-list/
+G42,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=G0_I-ZF0S38
+D43,Problem (opens LeetCode),Merge Two Sorted Lists,https://leetcode.com/problems/merge-two-sorted-lists/
+G43,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=XIdigk956u0
+D44,Problem (opens LeetCode),Linked List Cycle,https://leetcode.com/problems/linked-list-cycle/
+G44,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=gBTe7lFR3vc
+D45,Problem (opens LeetCode),Reorder List,https://leetcode.com/problems/reorder-list/
+G45,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=S5bfdUTrKLM
+D46,Problem (opens LeetCode),Remove Nth Node From End of List,https://leetcode.com/problems/remove-nth-node-from-end-of-list/
+G46,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=XVuQxVej6y8
+D47,Problem (opens LeetCode),Copy List With Random Pointer,https://leetcode.com/problems/copy-list-with-random-pointer/
+G47,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=5Y2EiZST97Y
+D48,Problem (opens LeetCode),Add Two Numbers,https://leetcode.com/problems/add-two-numbers/
+G48,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=wgFPrzTjm7s
+D49,Problem (opens LeetCode),Find The Duplicate Number,https://leetcode.com/problems/find-the-duplicate-number/
+G49,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=wjYnzkAhcNk
+D50,Problem (opens LeetCode),LRU Cache,https://leetcode.com/problems/lru-cache/
+G50,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=7ABFKPK2hD4
+D51,Problem (opens LeetCode),Merge k Sorted Lists,https://leetcode.com/problems/merge-k-sorted-lists/
+G51,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=q5a5OiGbT6Q
+D52,Problem (opens LeetCode),Reverse Nodes in k-Group,https://leetcode.com/problems/reverse-nodes-in-k-group/
+G52,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=1UOPsfP85V4
+D53,Problem (opens LeetCode),Invert Binary Tree,https://leetcode.com/problems/invert-binary-tree/
+G53,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=OnSn2XEQ4MY
+D54,Problem (opens LeetCode),Maximum Depth of Binary Tree,https://leetcode.com/problems/maximum-depth-of-binary-tree/
+G54,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=hTM3phVI6YQ
+D55,Problem (opens LeetCode),Diameter of Binary Tree,https://leetcode.com/problems/diameter-of-binary-tree/
+G55,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=bkxqA8Rfv04
+D56,Problem (opens LeetCode),Balanced Binary Tree,https://leetcode.com/problems/balanced-binary-tree/
+G56,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=QfJsau0ItOY
+D57,Problem (opens LeetCode),Same Tree,https://leetcode.com/problems/same-tree/
+G57,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=vRbbcKXCxOw
+D58,Problem (opens LeetCode),Subtree of Another Tree,https://leetcode.com/problems/subtree-of-another-tree/
+G58,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=E36O5SWp-LE
+D59,Problem (opens LeetCode),Lowest Common Ancestor of a Binary Search Tree,https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/
+G59,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=gs2LMfuOR9k
+D60,Problem (opens LeetCode),Binary Tree Level Order Traversal,https://leetcode.com/problems/binary-tree-level-order-traversal/
+G60,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=6ZnyEApgFYg
+D61,Problem (opens LeetCode),Binary Tree Right Side View,https://leetcode.com/problems/binary-tree-right-side-view/
+G61,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=d4zLyf32e3I
+D62,Problem (opens LeetCode),Count Good Nodes In Binary Tree,https://leetcode.com/problems/count-good-nodes-in-binary-tree/
+G62,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=7cp5imvDzl4
+D63,Problem (opens LeetCode),Validate Binary Search Tree,https://leetcode.com/problems/validate-binary-search-tree/
+G63,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=s6ATEkipzow
+D64,Problem (opens LeetCode),Kth Smallest Element in a BST,https://leetcode.com/problems/kth-smallest-element-in-a-bst/
+G64,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=5LUXSvjmGCw
+D65,Problem (opens LeetCode),Construct Binary Tree From Preorder And Inorder Traversal,https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/
+G65,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=ihj4IQGZ2zc
+D66,Problem (opens LeetCode),Binary Tree Maximum Path Sum,https://leetcode.com/problems/binary-tree-maximum-path-sum/
+G66,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=Hr5cWUld4vU
+D67,Problem (opens LeetCode),Serialize And Deserialize Binary Tree,https://leetcode.com/problems/serialize-and-deserialize-binary-tree/
+G67,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=u4JAi2JJhI8
+D68,Problem (opens LeetCode),Kth Largest Element In a Stream,https://leetcode.com/problems/kth-largest-element-in-a-stream/
+G68,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=hOjcdrqMoQ8
+D69,Problem (opens LeetCode),Last Stone Weight,https://leetcode.com/problems/last-stone-weight/
+G69,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=B-QCq79-Vfw
+D70,Problem (opens LeetCode),K Closest Points to Origin,https://leetcode.com/problems/k-closest-points-to-origin/
+G70,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=rI2EBUEMfTk
+D71,Problem (opens LeetCode),Kth Largest Element In An Array,https://leetcode.com/problems/kth-largest-element-in-an-array/
+G71,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=XEmy13g1Qxc
+D72,Problem (opens LeetCode),Task Scheduler,https://leetcode.com/problems/task-scheduler/
+G72,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=s8p8ukTyA2I
+D73,Problem (opens LeetCode),Design Twitter,https://leetcode.com/problems/design-twitter/
+G73,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=pNichitDD2E
+D74,Problem (opens LeetCode),Find Median From Data Stream,https://leetcode.com/problems/find-median-from-data-stream/
+G74,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=itmhHWaHupI
+D75,Problem (opens LeetCode),Maximum Subarray,https://leetcode.com/problems/maximum-subarray/
+G75,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=5WZl3MMT0Eg
+D76,Problem (opens LeetCode),Jump Game,https://leetcode.com/problems/jump-game/
+G76,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=Yan0cv2cLy8
+D77,Problem (opens LeetCode),Jump Game II,https://leetcode.com/problems/jump-game-ii/
+G77,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=dJ7sWiOoK7g
+D78,Problem (opens LeetCode),Gas Station,https://leetcode.com/problems/gas-station/
+G78,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=lJwbPZGo05A
+D79,Problem (opens LeetCode),Hand of Straights,https://leetcode.com/problems/hand-of-straights/
+G79,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=amnrMCVd2YI
+D80,Problem (opens LeetCode),Merge Triplets to Form Target Triplet,https://leetcode.com/problems/merge-triplets-to-form-target-triplet/
+G80,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=kShkQLQZ9K4
+D81,Problem (opens LeetCode),Partition Labels,https://leetcode.com/problems/partition-labels/
+G81,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=B7m8UmZE-vw
+D82,Problem (opens LeetCode),Valid Parenthesis String,https://leetcode.com/problems/valid-parenthesis-string/
+G82,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=QhPdNS143Qg
+D83,Problem (opens LeetCode),Subsets,https://leetcode.com/problems/subsets/
+G83,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=REOH22Xwdkk
+D84,Problem (opens LeetCode),Combination Sum,https://leetcode.com/problems/combination-sum/
+G84,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=GBKI9VSKdGg
+D85,Problem (opens LeetCode),Permutations,https://leetcode.com/problems/permutations/
+G85,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=s7AvT7cGdSo
+D86,Problem (opens LeetCode),Subsets II,https://leetcode.com/problems/subsets-ii/
+G86,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=Vn2v6ajA7U0
+D87,Problem (opens LeetCode),Combination Sum II,https://leetcode.com/problems/combination-sum-ii/
+G87,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=rSA3t6BDDwg
+D88,Problem (opens LeetCode),Word Search,https://leetcode.com/problems/word-search/
+G88,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=pfiQ_PS1g8E
+D89,Problem (opens LeetCode),Palindrome Partitioning,https://leetcode.com/problems/palindrome-partitioning/
+G89,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=3jvWodd7ht0
+D90,Problem (opens LeetCode),Letter Combinations of a Phone Number,https://leetcode.com/problems/letter-combinations-of-a-phone-number/
+G90,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=0snEunUacZY
+D91,Problem (opens LeetCode),N-Queens,https://leetcode.com/problems/n-queens/
+G91,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=Ph95IHmRp5M
+D92,Problem (opens LeetCode),Implement Trie (Prefix Tree),https://leetcode.com/problems/implement-trie-prefix-tree/
+G92,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=oobqoCJlHA0
+D93,Problem (opens LeetCode),Design Add And Search Words Data Structure,https://leetcode.com/problems/design-add-and-search-words-data-structure/
+G93,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=BTf05gs_8iU
+D94,Problem (opens LeetCode),Word Search II,https://leetcode.com/problems/word-search-ii/
+G94,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=asbcE9mZz_U
+D95,Problem (opens LeetCode),Number of Islands,https://leetcode.com/problems/number-of-islands/
+G95,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=pV2kpPD66nE
+D96,Problem (opens LeetCode),Clone Graph,https://leetcode.com/problems/clone-graph/
+G96,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=mQeF6bN8hMk
+D97,Problem (opens LeetCode),Max Area of Island,https://leetcode.com/problems/max-area-of-island/
+G97,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=iJGr1OtmH0c
+D98,Problem (opens LeetCode),Pacific Atlantic Water Flow,https://leetcode.com/problems/pacific-atlantic-water-flow/
+G98,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=s-VkcjHqkGI
+D99,Problem (opens LeetCode),Surrounded Regions,https://leetcode.com/problems/surrounded-regions/
+G99,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=9z2BunfoZ5Y
+D100,Problem (opens LeetCode),Rotting Oranges,https://leetcode.com/problems/rotting-oranges/
+G100,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=y704fEOx0s0
+D101,Problem (opens LeetCode),Walls And Gates,https://leetcode.com/problems/walls-and-gates/
+F101,Free link (premium only),Free version,https://www.lintcode.com/problem/663/
+G101,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=e69C6xhiSQE
+D102,Problem (opens LeetCode),Course Schedule,https://leetcode.com/problems/course-schedule/
+G102,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=EgI5nU9etnU
+D103,Problem (opens LeetCode),Course Schedule II,https://leetcode.com/problems/course-schedule-ii/
+G103,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=Akt3glAwyfY
+D104,Problem (opens LeetCode),Redundant Connection,https://leetcode.com/problems/redundant-connection/
+G104,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=FXWRE67PLL0
+D105,Problem (opens LeetCode),Number of Connected Components In An Undirected Graph,https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/
+F105,Free link (premium only),Free version,https://www.lintcode.com/problem/3651/
+G105,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=8f1XPm4WOUc
+D106,Problem (opens LeetCode),Graph Valid Tree,https://leetcode.com/problems/graph-valid-tree/
+F106,Free link (premium only),Free version,https://www.lintcode.com/problem/178/
+G106,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=bXsUuownnoQ
+D107,Problem (opens LeetCode),Word Ladder,https://leetcode.com/problems/word-ladder/
+G107,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=h9iTnkgv05E
+D108,Problem (opens LeetCode),Min Cost to Connect All Points,https://leetcode.com/problems/min-cost-to-connect-all-points/
+G108,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=f7JOBJIC-NA
+D109,Problem (opens LeetCode),Network Delay Time,https://leetcode.com/problems/network-delay-time/
+G109,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=EaphyqKU4PQ
+D110,Problem (opens LeetCode),Cheapest Flights Within K Stops,https://leetcode.com/problems/cheapest-flights-within-k-stops/
+G110,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=5eIK3zUdYmE
+D111,Problem (opens LeetCode),Reconstruct Itinerary,https://leetcode.com/problems/reconstruct-itinerary/
+G111,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=ZyB_gQ8vqGA
+D112,Problem (opens LeetCode),Swim In Rising Water,https://leetcode.com/problems/swim-in-rising-water/
+G112,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=amvrKlMLuGY
+D113,Problem (opens LeetCode),Alien Dictionary,https://leetcode.com/problems/alien-dictionary/
+F113,Free link (premium only),Free version,https://www.lintcode.com/problem/892/
+G113,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=6kTZYvNNyps
+D114,Problem (opens LeetCode),Happy Number,https://leetcode.com/problems/happy-number/
+G114,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=ljz85bxOYJ0
+D115,Problem (opens LeetCode),Plus One,https://leetcode.com/problems/plus-one/
+G115,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=jIaA8boiG1s
+D116,Problem (opens LeetCode),Rotate Image,https://leetcode.com/problems/rotate-image/
+G116,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=fMSJSS7eO1w
+D117,Problem (opens LeetCode),Spiral Matrix,https://leetcode.com/problems/spiral-matrix/
+G117,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=BJnMZNwUk1M
+D118,Problem (opens LeetCode),Set Matrix Zeroes,https://leetcode.com/problems/set-matrix-zeroes/
+G118,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=T41rL0L3Pnw
+D119,Problem (opens LeetCode),"Pow(x, n)",https://leetcode.com/problems/powx-n/
+G119,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=g9YQyYi4IQQ
+D120,Problem (opens LeetCode),Multiply Strings,https://leetcode.com/problems/multiply-strings/
+G120,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=1vZswirL8Y8
+D121,Problem (opens LeetCode),Detect Squares,https://leetcode.com/problems/detect-squares/
+G121,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=bahebearrDc
+D122,Problem (opens LeetCode),Climbing Stairs,https://leetcode.com/problems/climbing-stairs/
+G122,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=Y0lT9Fck7qI
+D123,Problem (opens LeetCode),Min Cost Climbing Stairs,https://leetcode.com/problems/min-cost-climbing-stairs/
+G123,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=ktmzAZWkEZ0
+D124,Problem (opens LeetCode),House Robber,https://leetcode.com/problems/house-robber/
+G124,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=73r3KWiEvyk
+D125,Problem (opens LeetCode),House Robber II,https://leetcode.com/problems/house-robber-ii/
+G125,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=rWAJCfYYOvM
+D126,Problem (opens LeetCode),Longest Palindromic Substring,https://leetcode.com/problems/longest-palindromic-substring/
+G126,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=XYQecbcd6_c
+D127,Problem (opens LeetCode),Palindromic Substrings,https://leetcode.com/problems/palindromic-substrings/
+G127,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=4RACzI5-du8
+D128,Problem (opens LeetCode),Decode Ways,https://leetcode.com/problems/decode-ways/
+G128,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=6aEyTjOwlJU
+D129,Problem (opens LeetCode),Coin Change,https://leetcode.com/problems/coin-change/
+G129,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=H9bfqozjoqs
+D130,Problem (opens LeetCode),Maximum Product Subarray,https://leetcode.com/problems/maximum-product-subarray/
+G130,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=lXVy6YWFcRM
+D131,Problem (opens LeetCode),Word Break,https://leetcode.com/problems/word-break/
+G131,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=Sx9NNgInc3A
+D132,Problem (opens LeetCode),Longest Increasing Subsequence,https://leetcode.com/problems/longest-increasing-subsequence/
+G132,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=cjWnW0hdF1Y
+D133,Problem (opens LeetCode),Partition Equal Subset Sum,https://leetcode.com/problems/partition-equal-subset-sum/
+G133,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=IsvocB5BJhw
+D134,Problem (opens LeetCode),Unique Paths,https://leetcode.com/problems/unique-paths/
+G134,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=IlEsdxuD4lY
+D135,Problem (opens LeetCode),Longest Common Subsequence,https://leetcode.com/problems/longest-common-subsequence/
+G135,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=Ua0GhsJSlWM
+D136,Problem (opens LeetCode),Best Time to Buy And Sell Stock With Cooldown,https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/
+G136,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=I7j0F7AHpb8
+D137,Problem (opens LeetCode),Coin Change II,https://leetcode.com/problems/coin-change-ii/
+G137,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=Mjy4hd2xgrs
+D138,Problem (opens LeetCode),Target Sum,https://leetcode.com/problems/target-sum/
+G138,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=g0npyaQtAQM
+D139,Problem (opens LeetCode),Interleaving String,https://leetcode.com/problems/interleaving-string/
+G139,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=3Rw3p9LrgvE
+D140,Problem (opens LeetCode),Edit Distance,https://leetcode.com/problems/edit-distance/
+G140,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=XYi2-LPrwm4
+D141,Problem (opens LeetCode),Longest Increasing Path In a Matrix,https://leetcode.com/problems/longest-increasing-path-in-a-matrix/
+G141,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=wCc_nd-GiEc
+D142,Problem (opens LeetCode),Distinct Subsequences,https://leetcode.com/problems/distinct-subsequences/
+G142,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=-RDzMJ33nx8
+D143,Problem (opens LeetCode),Burst Balloons,https://leetcode.com/problems/burst-balloons/
+G143,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=VFskby7lUbw
+D144,Problem (opens LeetCode),Regular Expression Matching,https://leetcode.com/problems/regular-expression-matching/
+G144,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=HAA8mgxlov8
+D145,Problem (opens LeetCode),Single Number,https://leetcode.com/problems/single-number/
+G145,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=qMPX1AOa83k
+D146,Problem (opens LeetCode),Number of 1 Bits,https://leetcode.com/problems/number-of-1-bits/
+G146,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=5Km3utixwZs
+D147,Problem (opens LeetCode),Counting Bits,https://leetcode.com/problems/counting-bits/
+G147,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=RyBM56RIWrM
+D148,Problem (opens LeetCode),Reverse Bits,https://leetcode.com/problems/reverse-bits/
+G148,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=UcoN6UjAI64
+D149,Problem (opens LeetCode),Missing Number,https://leetcode.com/problems/missing-number/
+G149,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=WnPLSRLSANE
+D150,Problem (opens LeetCode),Sum of Two Integers,https://leetcode.com/problems/sum-of-two-integers/
+G150,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=gVUrDV4tZfY
+D151,Problem (opens LeetCode),Reverse Integer,https://leetcode.com/problems/reverse-integer/
+G151,Solution video (only after 20 min),Watch,https://www.youtube.com/watch?v=HAgLH58IgJQ
+

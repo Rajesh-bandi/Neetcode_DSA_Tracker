@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.verify*/
+logs/
+download/
+.DS_Store
+
+# local backend state and secrets
+backend/data/
+backend/.env
+.env
+
+# editor
+.vscode/
+.idea/
+*.log

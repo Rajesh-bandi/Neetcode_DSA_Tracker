@@ -1,0 +1,19 @@
+{
+  "name": "neetcode-tracker-api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Auth, progress sync, streaks and leaderboard for the NeetCode 150 tracker.",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "test": "node test/api.test.mjs"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "nodemailer": "^7.0.9"
+  }
+}
