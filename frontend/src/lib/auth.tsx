@@ -8,6 +8,7 @@ type AuthValue = {
   ready: boolean;
   register: (email: string, password: string, name: string, username: string) => Promise<void>;
   login: (identifier: string, password: string) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<number>;
   logout: () => Promise<void>;
   /** Drops every session for the account, this browser included. */
   logoutEverywhere: () => Promise<void>;
@@ -51,6 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStreak(result.streak);
   }, []);
 
+  const changePassword = useCallback(async (currentPassword: string, newPassword: string) => {
+    const result = await api.changePassword(currentPassword, newPassword);
+    return result.otherSessionsSignedOut;
+  }, []);
+
   const logout = useCallback(async () => {
     await api.logout().catch(() => undefined);
     setUser(null);
@@ -64,8 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthValue>(
-    () => ({ user, streak, ready, register, login, logout, logoutEverywhere, setStreak }),
-    [user, streak, ready, register, login, logout, logoutEverywhere],
+    () => ({ user, streak, ready, register, login, changePassword, logout, logoutEverywhere, setStreak }),
+    [user, streak, ready, register, login, changePassword, logout, logoutEverywhere],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

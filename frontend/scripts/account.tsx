@@ -294,6 +294,23 @@ try {
   check('the ledger agrees with the server', text('.ledger__v').trim() === '2', text('.ledger__v'));
   check('the rail reports a saved state', text('.rail__whoMeta').includes('synced'), text('.rail__whoMeta'));
 
+  console.log('\naccount settings');
+  await act(async () => {
+    navTo('Settings');
+  });
+  check('settings shows the signed-in account', text('.settings__identity').includes(email));
+  check('settings offers password change and clear progress', Boolean(document.querySelector('.settings__form')) && Boolean(document.querySelector('.settings__clear')));
+  const changedPassword = 'a fresh e2e password 456';
+  await act(async () => {
+    fill('#settings-current-password', 'e2e password 123');
+    fill('#settings-new-password', changedPassword);
+    fill('#settings-confirm-password', changedPassword);
+  });
+  await act(async () => {
+    click([...document.querySelectorAll('.settings__form button')].find((b) => b.textContent?.includes('Save new password')));
+  });
+  check('settings can change the password and keep the session', await waitFor(() => bodyText().includes('Password changed.')));
+
   console.log('\nwriting while signed in');
   await act(async () => {
     navTo('Tracker');
@@ -332,7 +349,7 @@ try {
   });
   await act(async () => {
     fill('input[autocomplete="username"]', email);
-    fill('input[type="password"]', 'e2e password 123');
+    fill('input[type="password"]', changedPassword);
   });
   await act(async () => {
     click('button[type="submit"]');

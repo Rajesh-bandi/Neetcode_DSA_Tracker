@@ -6,12 +6,13 @@ import { MethodView } from './views/MethodView';
 import { HomeView } from './views/HomeView';
 import { LeaderboardView } from './views/LeaderboardView';
 import { AuthView, type AuthMode } from './views/AuthView';
+import { SettingsView } from './views/SettingsView';
 import { useTracker, type Derived } from './lib/state';
 import { WEEKS } from './data/problems';
 import { AuthProvider, useAuth } from './lib/auth';
 import { useProgressSync } from './lib/sync';
 
-const VIEWS: View[] = ['home', 'tracker', 'progress', 'leaderboard', 'method', 'login'];
+const VIEWS: View[] = ['home', 'tracker', 'progress', 'leaderboard', 'method', 'settings', 'login'];
 
 function viewFromHash(): View {
   if (typeof window === 'undefined') return 'home';
@@ -126,6 +127,7 @@ function Shell() {
         {view === 'progress' && <ProgressView tracker={tracker} onOpenProblem={openProblem} />}
         {view === 'leaderboard' && <LeaderboardView tracker={tracker} onSignIn={() => signIn('register')} />}
         {view === 'method' && <MethodView tracker={tracker} />}
+        {view === 'settings' && <SettingsView tracker={tracker} onSignIn={() => signIn('login')} />}
         {view === 'login' && (
           <AuthView mode={authMode} onMode={setAuthMode} onDone={() => go('home')} onSkip={() => go('tracker')} />
         )}

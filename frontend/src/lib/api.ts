@@ -2,6 +2,7 @@ import type { Entry } from './state';
 
 export type PublicUser = {
   id: string;
+  username: string;
   name: string;
   email: string;
   createdAt: string;
@@ -111,6 +112,9 @@ export const api = {
       { email, password, name, username },
     ),
   login: (identifier: string, password: string) => post<{ user: PublicUser; streak: StreakInfo }>('/api/auth/login', { identifier, password }),
+
+  changePassword: (currentPassword: string, newPassword: string) =>
+    post<{ changed: true; otherSessionsSignedOut: number }>('/api/auth/change-password', { currentPassword, newPassword }),
 
   logout: () => post<{ ok: true }>('/api/auth/logout'),
 

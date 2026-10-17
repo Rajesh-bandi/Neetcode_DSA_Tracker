@@ -64,7 +64,7 @@ try {
 
   console.log('\nregistration');
   const email = 'ada@gmail.com';
-  const password = 'correct horse battery';
+  let password = 'correct horse battery';
   const register = await call('POST', '/api/auth/register', { email, password, name: 'Ada Lovelace', username: 'ada' });
   check('register creates an active account', register.status === 201, `${register.status}`);
   check('registration issues a session cookie', cookie.includes('nc_session='), cookie);
@@ -125,6 +125,40 @@ try {
   const login = await call('POST', '/api/auth/login', { email, password });
   check('correct password signs in', login.status === 200 && Boolean(login.data.user));
   check('login returns a fresh cookie', login.setCookie.length > 0);
+
+  const activeSession = login.setCookie.map((c) => c.split(';')[0]).join('; ');
+  const otherSession = await call('POST', '/api/auth/login', { email, password }, { capture: false });
+  const otherSessionCookie = otherSession.setCookie.map((c) => c.split(';')[0]).join('; ');
+  const wrongCurrentPassword = await call(
+    'POST',
+    '/api/auth/change-password',
+    { currentPassword: 'incorrect current', newPassword: 'new secure password' },
+    { cookie: activeSession },
+  );
+  check('password change rejects a wrong current password', wrongCurrentPassword.status === 401);
+  const shortNewPassword = await call(
+    'POST',
+    '/api/auth/change-password',
+    { currentPassword: password, newPassword: 'short' },
+    { cookie: activeSession },
+  );
+  check('password change rejects a short new password', shortNewPassword.status === 400);
+  const newPassword = 'an even better password';
+  const changedPassword = await call(
+    'POST',
+    '/api/auth/change-password',
+    { currentPassword: password, newPassword },
+    { cookie: activeSession },
+  );
+  check('password change succeeds', changedPassword.status === 200 && changedPassword.data.changed === true);
+  check('password change signs out other sessions', changedPassword.data.otherSessionsSignedOut === 2);
+  check('password change keeps this device signed in', (await call('GET', '/api/auth/me', undefined, { cookie: activeSession })).status === 200);
+  check('password change revokes the other device', (await call('GET', '/api/auth/me', undefined, { cookie: otherSessionCookie })).status === 401);
+  const usernameLogin = await call('POST', '/api/auth/login', { identifier: 'ada', password: newPassword });
+  check('the new password works with username sign-in', usernameLogin.status === 200);
+  password = newPassword;
+  const oldPasswordLogin = await call('POST', '/api/auth/login', { email, password: 'correct horse battery' });
+  check('the old password no longer works', oldPasswordLogin.status === 401);
 
   console.log('\norigin guard');
   const foreign = await call('POST', '/api/auth/logout', {}, { headers: { origin: 'https://evil.example' } });

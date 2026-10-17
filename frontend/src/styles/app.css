@@ -1056,6 +1056,82 @@ button {
   color: var(--fg-faint);
 }
 
+.settings {
+  max-width: 52rem;
+}
+
+.settings__identity {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem 2rem;
+  margin: 0;
+}
+
+.settings__identity dt {
+  margin-bottom: 0.2rem;
+  font-size: 0.68rem;
+  color: var(--fg-faint);
+}
+
+.settings__identity dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: var(--fg);
+}
+
+.settings__form {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 38rem;
+}
+
+.settings__formrow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.settings__form .btn {
+  justify-self: start;
+}
+
+.settings__signedout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1rem;
+}
+
+.settings__signedout p,
+.settings__note {
+  margin: 0;
+  color: var(--fg-mute);
+  font-size: 0.82rem;
+}
+
+.settings__danger {
+  border-color: color-mix(in srgb, var(--red) 35%, var(--surface));
+}
+
+.settings__clear {
+  align-self: flex-start;
+  color: var(--red);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  padding: 0.5rem 0.7rem;
+  font-size: 0.78rem;
+}
+
+.settings__clear:hover:not(:disabled) {
+  background: rgba(251, 73, 52, 0.08);
+  border-color: var(--red);
+}
+
+.settings__clear:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* the 150-square wall: the one loud element. One row per week, in study order. */
 .wall {
   display: flex;
@@ -1296,6 +1372,7 @@ button {
   color: var(--fg-mute);
 }
 
+
 /* ----------------------------------------------------------------- method */
 .method {
   display: grid;
@@ -1436,6 +1513,11 @@ button {
 }
 
 @media (max-width: 620px) {
+  .settings__identity,
+  .settings__formrow {
+    grid-template-columns: 1fr;
+  }
+
   .prob {
     grid-template-columns: auto auto minmax(0, 1fr);
     row-gap: 0.4rem;

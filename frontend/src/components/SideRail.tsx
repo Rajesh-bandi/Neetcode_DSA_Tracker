@@ -3,7 +3,7 @@ import { STATUS_LABEL, type Tracker } from '../lib/state';
 import { useAuth } from '../lib/auth';
 import type { SyncHandle } from '../lib/sync';
 
-export type View = 'home' | 'tracker' | 'progress' | 'leaderboard' | 'method' | 'login';
+export type View = 'home' | 'tracker' | 'progress' | 'leaderboard' | 'method' | 'settings' | 'login';
 
 const NAV: { id: View; label: string }[] = [
   { id: 'home', label: 'Today' },
@@ -11,6 +11,7 @@ const NAV: { id: View; label: string }[] = [
   { id: 'progress', label: 'Progress' },
   { id: 'leaderboard', label: 'Streak board' },
   { id: 'method', label: 'Method' },
+  { id: 'settings', label: 'Settings' },
 ];
 
 type Props = {
@@ -31,6 +32,7 @@ export function SideRail({ view, onView, tracker, sync, onJumpToWeek }: Props) {
     progress: `${masteredCount} mastered`,
     leaderboard: user ? 'ranked' : 'sign in',
     method: '12 weeks',
+    settings: user ? 'account' : 'local data',
     login: '',
   };
 
@@ -132,11 +134,6 @@ export function SideRail({ view, onView, tracker, sync, onJumpToWeek }: Props) {
           )}
         </div>
 
-        {solvedCount > 0 && (
-          <button type="button" className="rail__reset" onClick={tracker.resetAll}>
-            Clear all progress
-          </button>
-        )}
       </div>
     </aside>
   );

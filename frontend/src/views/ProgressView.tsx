@@ -342,6 +342,7 @@ export function ProgressView({ tracker, onOpenProblem }: Props) {
           <span style={{ marginLeft: 'auto' }}>Today · {longDate(today)}</span>
         </div>
       </section>
+
     </div>
   );
 }

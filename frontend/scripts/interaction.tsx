@@ -333,6 +333,17 @@ check(
   yesterdayLabel,
 );
 check('the ledger reports three active days', text('.ledger__rows').includes('3'), text('.ledger__rows'));
+check(
+  'clear progress is not exposed on the home screen',
+  ![...document.querySelectorAll('button')].some((button) => button.textContent?.includes('Clear all progress')),
+);
+
+await act(async () => {
+  navTo('Settings');
+});
+check('settings opens from the rail', document.body.textContent.includes('Manage your sign-in and study data.'));
+check('guest settings offers the local clear action', Boolean(document.querySelector('.settings__clear')));
+check('guest settings explains account password access', document.body.textContent.includes('Password changes are available after you sign in.'));
 
 console.log('\nsigning in from the rail');
 await act(async () => {

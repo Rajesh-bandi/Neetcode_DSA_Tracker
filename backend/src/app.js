@@ -85,6 +85,7 @@ export function createApp({ db, secret, appOrigin = 'http://localhost:3000' }) {
   app.set('trust proxy', 1);
 
   const loginLimiter = limiter({ windowMs: 10 * 60_000, max: 12 });
+  const passwordChangeLimiter = limiter({ windowMs: 10 * 60_000, max: 6 });
   const registerLimiter = limiter({ windowMs: 10 * 60_000, max: 8 });
   const writeLimiter = limiter({ windowMs: 60_000, max: 90 });
 
@@ -243,6 +244,30 @@ export function createApp({ db, secret, appOrigin = 'http://localhost:3000' }) {
     }
     await issueSession(req, res, user);
     return res.json({ user: publicUser(user), streak: await streakFor(user.id, serverDay()) });
+  });
+
+  app.post('/api/auth/change-password', requireAuth, async (req, res) => {
+    const limited = passwordChangeLimiter(`password:${req.user.id}:${req.ip}`);
+    if (!limited.ok) {
+      return res.status(429).json({ error: `Too many attempts. Try again in ${limited.retryAfter}s.`, retryAfter: limited.retryAfter });
+    }
+
+    const currentPassword = String(req.body?.currentPassword ?? '');
+    const newPassword = String(req.body?.newPassword ?? '');
+    if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Enter your current and new password.' });
+    if (newPassword.length < 8) return res.status(400).json({ error: 'Use at least 8 characters for your new password.', field: 'newPassword' });
+    if (newPassword.length > 200) return res.status(400).json({ error: 'That password is too long.', field: 'newPassword' });
+    if (!checkPassword(currentPassword, req.user.password_hash)) {
+      return res.status(401).json({ error: 'Your current password is incorrect.', field: 'currentPassword' });
+    }
+
+    const claim = verifyToken(parseCookies(req.get('cookie'))[SESSION_COOKIE], secret);
+    if (!claim) return res.status(401).json({ error: 'Sign in again to change your password.' });
+    const [, removed] = await db.batch([
+      { sql: 'UPDATE users SET password_hash = ? WHERE id = ?', args: [hashPassword(newPassword), req.user.id] },
+      { sql: 'DELETE FROM sessions WHERE user_id = ? AND jti != ?', args: [req.user.id, claim.jti] },
+    ]);
+    return res.json({ changed: true, otherSessionsSignedOut: Number(removed.changes ?? 0) });
   });
 
   app.post('/api/auth/logout', async (req, res) => {
